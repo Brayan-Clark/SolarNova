@@ -22,7 +22,7 @@ export const solutionsSeed = [
                                 "Câblage et protections électriques",
                                 "Installation professionnelle comprise",
                             ],
-                            priceRange: "150 000 - 250 000 FCFA",
+                            priceRange: "1 200 000 - 1 900 000 Ar",
                             icon: "fa-solid fa-lightbulb",
                             color: "from-green-600 to-green-800",
                         },
@@ -41,7 +41,7 @@ export const solutionsSeed = [
                                 "Tableau électrique DC/AC",
                                 "Câblage complet et installation",
                             ],
-                            priceRange: "450 000 - 700 000 FCFA",
+                            priceRange: "3 400 000 - 5 300 000 Ar",
                             icon: "fa-solid fa-house",
                             color: "from-emerald-600 to-teal-800",
                         },
@@ -61,7 +61,7 @@ export const solutionsSeed = [
                                 "Tableau électrique complet",
                                 "Installation et mise en service",
                             ],
-                            priceRange: "1 200 000 - 1 800 000 FCFA",
+                            priceRange: "9 000 000 - 13 700 000 Ar",
                             icon: "fa-solid fa-house-chimney",
                             color: "from-teal-600 to-cyan-800",
                         },
@@ -81,7 +81,7 @@ export const solutionsSeed = [
                                 "Protection surtensions",
                                 "Installation certifiée",
                             ],
-                            priceRange: "2 500 000 - 4 000 000 FCFA",
+                            priceRange: "19 000 000 - 30 000 000 Ar",
                             icon: "fa-solid fa-building",
                             color: "from-cyan-600 to-blue-800",
                         },
@@ -159,7 +159,7 @@ export const articlesSeed = [
         <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Le solaire décentralisé : une révolution en marche</h3>
         <p>Contrairement au modèle classique des grandes centrales, l'Afrique embrace le solaire décentralisé — des kits résidentiels autonomes aux mini-réseaux (mini-grids) alimentant des villages entiers. Ce modèle évite les coûts prohibitifs d'extension du réseau national et offre une mise en œuvre rapide. Au Mali, au Sénégal et au Nigeria, des milliers de foyers ont déjà fait le choix du solaire hors-réseau.</p>
         <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">La baisse des coûts change la donne</h3>
-        <p>Le coût des panneaux solaires a chuté de plus de 90% en 15 ans. Combiné à la baisse des prix des batteries lithium, le solaire est devenu compétitif — et souvent moins cher — que les générateurs diesel, sans compter les coûts de carburant et de maintenance. Pour un ménage africain dépensant 15 000 à 30 000 FCFA par mois en carburant, un kit solaire se rentabilise en 2 à 4 ans.</p>
+        <p>Le coût des panneaux solaires a chuté de plus de 90% en 15 ans. Combiné à la baisse des prix des batteries lithium, le solaire est devenu compétitif — et souvent moins cher — que les générateurs diesel, sans compter les coûts de carburant et de maintenance. Pour un ménage malgache dépensant 110 000 à 230 000 Ar par mois en carburant, un kit solaire se rentabilise en 2 à 4 ans.</p>
         <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Les défis restants</h3>
         <p>Malgré ce potentiel, des obstacles persistent : le manque de financement accessible, les taxes parfois élevées sur les équipements importés, le besoin de formation technique locale, et la nécessité de cadres réglementaires adaptés. Cependant, les gouvernements africains prennent conscience de l'enjeu et multiplient les initiatives pour faciliter l'accès au solaire.</p>
         <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">SolarNova : acteur de cette transition</h3>
