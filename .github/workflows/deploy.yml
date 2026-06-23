@@ -20,6 +20,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Rattaché à l'environnement "github-pages" pour pouvoir lire ses
+    # "Environment secrets" (PUBLIC_SUPABASE_URL, etc.) pendant le build.
+    environment: github-pages
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
