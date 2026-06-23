@@ -509,6 +509,41 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
           </div>
         </div>
 
+        <!-- Attribuer un rôle à un compte existant (sans Edge Function) -->
+        <div x-show="!isLocalMode" class="glass rounded-lg p-4 mb-6">
+          <div class="text-sm font-display font-600 mb-1">
+            <i class="fa-solid fa-user-tag mr-1.5 text-sol-400"></i>Attribuer un rôle à un compte existant
+          </div>
+          <p class="text-xs text-sol-300/50 mb-3">
+            Si la création ci-dessus échoue (fonction non déployée), crée le
+            compte dans Supabase → Authentication → Users, puis attribue-lui un
+            rôle ici par son email.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              x-model="assignForm.email"
+              placeholder="email@exemple.com"
+              class="flex-1 bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+            <select
+              x-model="assignForm.role_name"
+              class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="">Choisir un rôle</option>
+              <template x-for="r in roles" :key="r.id ?? r.name">
+                <option :value="r.name" x-text="r.label"></option>
+              </template>
+            </select>
+            <button
+              @click="assignExisting()"
+              class="btn-glow bg-sol-500/20 border border-sol-500/40 text-sol-300 font-display font-600 px-4 py-2 rounded-lg text-sm"
+            >
+              Attribuer
+            </button>
+          </div>
+        </div>
+
         <div class="space-y-2">
           <template x-for="u in userRoles" :key="u.id ?? u.email">
             <div

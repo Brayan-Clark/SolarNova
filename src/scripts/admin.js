@@ -91,6 +91,7 @@ export function createAdminApp() {
     // --- Édition rôle / utilisateur ---
     roleEdit: null, // rôle en cours d'édition
     createForm: { email: "", password: "", role_name: "" },
+    assignForm: { email: "", role_name: "" },
 
     // --- Édition ---
     editColl: null, // 'articles' | 'solutions'
@@ -278,8 +279,49 @@ export function createAdminApp() {
       }
     },
 
+    // Attribue un rôle à un compte DÉJÀ créé (sans Edge Function).
+    // Utile quand on a créé le compte dans Supabase → Authentication.
+    async assignExisting() {
+      const email = this.assignForm.email.trim().toLowerCase();
+      if (!email || !this.assignForm.role_name) {
+        this.showToast("Email et rôle requis.", "error");
+        return;
+      }
+      const existing = this.userRoles.find((u) => u.email === email);
+      const entry = existing
+        ? { ...existing, role_name: this.assignForm.role_name }
+        : { email, role_name: this.assignForm.role_name };
+      const res = await assignUserRole(entry);
+      if (res.ok) {
+        this.assignForm = { email: "", role_name: "" };
+        this.userRoles = await loadUserRoles();
+        this.showToast("Rôle attribué." + this.localNote(), "success");
+      } else {
+        this.showToast("Échec de l'attribution" + this.errText(res), "error");
+      }
+    },
+
+    // Nombre de super administrateurs actuels.
+    superAdminCount() {
+      return this.userRoles.filter((u) => u.role_name === "super_admin").length;
+    },
+
     // Change le rôle d'un utilisateur existant.
     async changeUserRole(entry, roleName) {
+      // Garde-fou : ne pas rétrograder le DERNIER super admin.
+      if (
+        entry.role_name === "super_admin" &&
+        roleName !== "super_admin" &&
+        this.superAdminCount() <= 1
+      ) {
+        this.showToast(
+          "Impossible : il doit rester au moins un super administrateur.",
+          "error",
+        );
+        // On recharge pour remettre le <select> sur l'ancienne valeur.
+        this.userRoles = await loadUserRoles();
+        return;
+      }
       const res = await assignUserRole({ ...entry, role_name: roleName });
       if (res.ok) {
         this.userRoles = await loadUserRoles();
@@ -291,6 +333,14 @@ export function createAdminApp() {
 
     // Supprime un utilisateur (compte + accès en prod ; accès local sinon).
     async removeUser(entry) {
+      // Garde-fou : ne pas supprimer le DERNIER super admin.
+      if (entry.role_name === "super_admin" && this.superAdminCount() <= 1) {
+        this.showToast(
+          "Impossible de supprimer le dernier super administrateur.",
+          "error",
+        );
+        return;
+      }
       if (
         !confirm(
           "Supprimer définitivement le compte et l'accès de " +

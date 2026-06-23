@@ -133,7 +133,13 @@ async function callAdminUsers(body) {
     if (!res.ok) return { ok: false, error: data.error || "Erreur serveur." };
     return { ok: true, data };
   } catch (e) {
-    return { ok: false, error: String(e) };
+    // Échec réseau = fonction très probablement non déployée.
+    return {
+      ok: false,
+      error:
+        "Fonction « admin-users » injoignable. Déployez-la (supabase functions deploy admin-users) " +
+        "ou créez le compte dans Supabase puis attribuez-lui un rôle ci-dessous.",
+    };
   }
 }
 
