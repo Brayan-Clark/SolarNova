@@ -224,7 +224,7 @@ export function createAdminApp() {
         this.roles = await loadRoles();
         this.showToast("Rôle enregistré." + this.localNote(), "success");
       } else {
-        this.showToast("Échec de l'enregistrement du rôle.", "error");
+        this.showToast("Échec de l'enregistrement du rôle" + this.errText(res), "error");
       }
     },
 
@@ -239,7 +239,7 @@ export function createAdminApp() {
         this.roles = await loadRoles();
         this.showToast("Rôle supprimé.", "success");
       } else {
-        this.showToast("Échec de la suppression.", "error");
+        this.showToast("Échec de la suppression" + this.errText(res), "error");
       }
     },
 
@@ -283,7 +283,7 @@ export function createAdminApp() {
         this.userRoles = await loadUserRoles();
         this.showToast("Rôle mis à jour." + this.localNote(), "success");
       } else {
-        this.showToast("Échec de la mise à jour.", "error");
+        this.showToast("Échec de la mise à jour" + this.errText(res), "error");
       }
     },
 
@@ -353,7 +353,7 @@ export function createAdminApp() {
         await this.loadAll();
         this.showToast("Enregistré." + this.localNote(), "success");
       } else {
-        this.showToast("Échec de l'enregistrement.", "error");
+        this.showToast("Échec de l'enregistrement" + this.errText(res), "error");
       }
     },
 
@@ -364,7 +364,7 @@ export function createAdminApp() {
         await this.loadAll();
         this.showToast("Supprimé." + this.localNote(), "success");
       } else {
-        this.showToast("Échec de la suppression.", "error");
+        this.showToast("Échec de la suppression" + this.errText(res), "error");
       }
     },
 
@@ -378,13 +378,21 @@ export function createAdminApp() {
           "success",
         );
       } else {
-        this.showToast("Action impossible.", "error");
+        this.showToast("Action impossible" + this.errText(res), "error");
       }
     },
 
     // ---------- Utilitaires ----------
     localNote() {
       return this.isLocalMode ? " (enregistré localement)" : "";
+    },
+
+    // Extrait un message d'erreur lisible (Supabase, fetch, etc.).
+    errText(res) {
+      const e = res && res.error;
+      if (!e) return "";
+      const msg = typeof e === "string" ? e : e.message || JSON.stringify(e);
+      return " — " + msg;
     },
 
     stars(n) {
