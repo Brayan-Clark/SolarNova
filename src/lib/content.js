@@ -128,9 +128,20 @@ export async function saveContent(coll, item) {
 
   const sb = await getSupabase();
   if (!sb) return { ok: false, error: "Client Supabase indisponible." };
-  // Pas de .select() ici : la relecture serait bloquée par le RLS pour les
+  // On distingue création et mise à jour :
+  //  - INSERT (nouvel enregistrement) → ne requiert que la permission INSERT.
+  //    On évite l'upsert qui, via ON CONFLICT DO UPDATE, exigerait aussi une
+  //    permission UPDATE (refus RLS sur les tables à insertion publique).
+  //  - UPDATE (id présent) → modification d'un enregistrement existant.
+  // Pas de .select() : la relecture serait bloquée par le RLS pour certaines
   // insertions publiques (ex. avis non approuvé). L'admin re-liste après coup.
-  const { error } = await sb.from(coll).upsert(item);
+  let error;
+  if (item.id == null) {
+    ({ error } = await sb.from(coll).insert(item));
+  } else {
+    const { id, ...rest } = item;
+    ({ error } = await sb.from(coll).update(rest).eq("id", id));
+  }
   if (error) return { ok: false, error };
   return { ok: true, item };
 }
