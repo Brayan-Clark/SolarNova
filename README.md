@@ -235,20 +235,28 @@ des avis**, et consultation des **demandes** (contacts + devis).
 | Situation | Connexion | Stockage des modifications |
 |-----------|-----------|----------------------------|
 | **Local** (Supabase non configuré) | identifiant de **développement** : `admin` / `solarnova` | `localStorage` du navigateur (démo) |
-| **Production** (Supabase configuré) | **vrai compte Supabase Auth** (les identifiants de dev sont **désactivés**) | base Supabase (réel, partagé) |
+| **Production** (Supabase configuré) | **lien magique par email** (passwordless) | base Supabase (réel, partagé) |
 
 > 🔒 L'accès de développement est **volontairement inutilisable en production** :
-> dès que les clés Supabase sont présentes, seul un compte Supabase Auth fonctionne.
+> dès que les clés Supabase sont présentes, seul le lien magique fonctionne.
 > (Identifiants de dev modifiables dans `src/lib/auth.js`.)
 
-### Créer le compte admin en production
-1. Supabase → **Authentication** → **Users** → **Add user** : saisis un email + mot de passe.
-2. Ouvre `…/admin` et connecte-toi avec ce compte.
+### Configurer le lien magique (indispensable)
+Supabase → **Authentication → URL Configuration** :
+- **Site URL** : `https://<utilisateur>.github.io/<dépôt>/admin`
+- **Redirect URLs** : la même URL + `http://localhost:4321/admin` (pour les tests).
 
-> Les droits d'écriture (gérer le contenu, modérer, lire les demandes) sont
-> accordés à **tout utilisateur authentifié** via les politiques RLS du
-> `schema.sql`. Pour restreindre à certaines personnes, n'ajoute que les comptes
-> de confiance dans Supabase Auth.
+> 📧 L'envoi d'emails intégré de Supabase est **plafonné** (quelques mails/heure
+> sur le plan gratuit). Pour la production, configure un **SMTP** (Authentication
+> → Emails) — ex. Resend, Brevo.
+
+### Créer le 1er super admin
+1. (Recommandé) Supabase → **Authentication → Users → Add user** : ajoute ton email (« Auto Confirm »).
+2. Va sur `…/admin`, entre cet email → reçois le lien → connecte-toi.
+3. Au 1er login, tu deviens **super administrateur** automatiquement.
+
+> Les droits sont appliqués **côté base** par le RLS (`has_permission()`), pas
+> seulement dans l'interface : un compte sans rôle ne peut rien faire.
 
 Le site public lit son contenu via la même couche (`src/lib/content.js`) : ce que
 tu changes dans l'admin apparaît directement sur le site.
@@ -269,33 +277,24 @@ une RPC `claim_super_admin()`, et les politiques d'écriture vérifient la permi
 correspondante. Un utilisateur connecté **sans rôle** ne peut donc rien faire,
 même en contournant l'interface.
 
-> Flux en production : applique `schema.sql` → crée le compte du dirigeant dans
-> Supabase Auth → il se connecte à `/admin` (il devient super admin) → il crée
-> les comptes de l'équipe (email + mot de passe + rôle) depuis l'onglet
-> *Utilisateurs*.
+> Flux en production : applique `schema.sql` → ajoute ton email dans Supabase Auth
+> → connecte-toi à `/admin` par lien magique (tu deviens super admin) → **invite**
+> ton équipe par email depuis l'onglet *Utilisateurs*.
 
-### Créer des comptes utilisateurs (depuis l'admin)
+### Inviter des utilisateurs (depuis l'admin)
 
-Il n'existe **pas de page publique d'inscription** (volontaire). C'est le super
-admin / un utilisateur ayant `users.manage` qui **crée les comptes** dans l'onglet
-*Utilisateurs* : il saisit un **email + mot de passe + rôle**, et la personne se
-connecte ensuite avec ces identifiants.
+Il n'existe **pas de page publique d'inscription** (volontaire). Le super admin
+(ou un utilisateur ayant `users.manage`) **invite** depuis l'onglet *Utilisateurs* :
+il saisit **email + rôle**. La personne va sur `/admin`, entre son email, reçoit
+le **lien magique** et se connecte — elle hérite du rôle attribué.
 
-Créer un compte avec mot de passe nécessite la clé `service_role` (secrète) →
-cela passe par une **Edge Function** sécurisée
-[`supabase/functions/admin-users`](supabase/functions/admin-users/index.ts) qui
-vérifie que l'appelant a bien la permission `users.manage` avant d'agir.
+- **Aucun mot de passe**, **rien à déployer** : l'invitation = une simple
+  attribution de rôle (`app_user_roles`), et la connexion passe par le lien magique.
+- On ne peut pas retirer/rétrograder le **dernier** super administrateur (anti-verrouillage).
 
-**Déploiement (une fois) :**
-```bash
-supabase functions deploy admin-users
-```
-(Pas de configuration côté front : l'URL de la fonction est dérivée
-automatiquement de `PUBLIC_SUPABASE_URL`.)
-
-> En **local** (sans Supabase), la création de compte est **simulée** (mot de
-> passe ignoré, pas de vraie connexion possible) — c'est normal, l'authentification
-> réelle n'existe qu'en production.
+> 💡 Une Edge Function optionnelle [`admin-users`](supabase/functions/admin-users/index.ts)
+> existe si tu veux un jour créer des comptes **email + mot de passe** (elle
+> nécessite `supabase functions deploy admin-users`). Non requise pour le lien magique.
 
 ---
 

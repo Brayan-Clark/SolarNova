@@ -10,6 +10,7 @@ import {
 } from "../lib/content.js";
 import {
   signIn,
+  sendMagicLink,
   signOut,
   getCurrentUser,
   AUTH_MODE,
@@ -26,8 +27,6 @@ import {
   loadUserRoles,
   assignUserRole,
   removeUserRole,
-  createUser,
-  deleteUser,
   getCurrentPermissions,
   bootstrapSuperAdmin,
 } from "../lib/permissions.js";
@@ -90,8 +89,8 @@ export function createAdminApp() {
 
     // --- Édition rôle / utilisateur ---
     roleEdit: null, // rôle en cours d'édition
-    createForm: { email: "", password: "", role_name: "" },
-    assignForm: { email: "", role_name: "" },
+    inviteForm: { email: "", role_name: "" },
+    magicSent: false, // lien magique envoyé (écran de connexion)
 
     // --- Édition ---
     editColl: null, // 'articles' | 'solutions'
@@ -108,6 +107,7 @@ export function createAdminApp() {
       if (this.authed) await this.afterAuth();
     },
 
+    // Connexion par identifiant + mot de passe (mode dev local uniquement).
     async login() {
       this.loginError = "";
       this.busy = true;
@@ -120,6 +120,24 @@ export function createAdminApp() {
         await this.afterAuth();
       } else {
         this.loginError = res.error || "Connexion impossible.";
+      }
+    },
+
+    // Connexion par lien magique (email, prod).
+    async sendLink() {
+      this.loginError = "";
+      const email = (this.loginForm.id || "").trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        this.loginError = "Veuillez entrer une adresse email valide.";
+        return;
+      }
+      this.busy = true;
+      const res = await sendMagicLink(email);
+      this.busy = false;
+      if (res.ok) {
+        this.magicSent = true;
+      } else {
+        this.loginError = res.error || "Envoi impossible.";
       }
     },
 
@@ -247,57 +265,36 @@ export function createAdminApp() {
     },
 
     // ---------- Utilisateurs ----------
-    // Crée un compte (email + mot de passe + rôle).
-    async createAccount() {
-      const email = this.createForm.email.trim().toLowerCase();
-      if (!email || !this.createForm.role_name) {
+    // Invite un utilisateur : on attribue un rôle à son email. La personne se
+    // connectera ensuite via le lien magique envoyé à cet email (sans mot de passe).
+    async inviteUser() {
+      const email = this.inviteForm.email.trim().toLowerCase();
+      if (!email || !this.inviteForm.role_name) {
         this.showToast("Email et rôle requis.", "error");
         return;
       }
-      if (!this.isLocalMode && !this.createForm.password) {
-        this.showToast("Mot de passe requis.", "error");
-        return;
-      }
-      this.busy = true;
-      const res = await createUser({
-        email,
-        password: this.createForm.password,
-        role_name: this.createForm.role_name,
-      });
-      this.busy = false;
-      if (res.ok) {
-        this.createForm = { email: "", password: "", role_name: "" };
-        this.userRoles = await loadUserRoles();
-        this.showToast(
-          this.isLocalMode
-            ? "Utilisateur simulé ajouté (local)."
-            : "Compte créé. La personne peut se connecter avec son email + mot de passe.",
-          "success",
-        );
-      } else {
-        this.showToast(res.error || "Échec de la création.", "error");
-      }
-    },
-
-    // Attribue un rôle à un compte DÉJÀ créé (sans Edge Function).
-    // Utile quand on a créé le compte dans Supabase → Authentication.
-    async assignExisting() {
-      const email = this.assignForm.email.trim().toLowerCase();
-      if (!email || !this.assignForm.role_name) {
-        this.showToast("Email et rôle requis.", "error");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        this.showToast("Adresse email invalide.", "error");
         return;
       }
       const existing = this.userRoles.find((u) => u.email === email);
       const entry = existing
-        ? { ...existing, role_name: this.assignForm.role_name }
-        : { email, role_name: this.assignForm.role_name };
+        ? { ...existing, role_name: this.inviteForm.role_name }
+        : { email, role_name: this.inviteForm.role_name };
+      this.busy = true;
       const res = await assignUserRole(entry);
+      this.busy = false;
       if (res.ok) {
-        this.assignForm = { email: "", role_name: "" };
+        this.inviteForm = { email: "", role_name: "" };
         this.userRoles = await loadUserRoles();
-        this.showToast("Rôle attribué." + this.localNote(), "success");
+        this.showToast(
+          this.isLocalMode
+            ? "Accès ajouté (local)."
+            : "Accès accordé. La personne se connecte via le lien magique envoyé à son email.",
+          "success",
+        );
       } else {
-        this.showToast("Échec de l'attribution" + this.errText(res), "error");
+        this.showToast("Échec" + this.errText(res), "error");
       }
     },
 
@@ -331,32 +328,25 @@ export function createAdminApp() {
       }
     },
 
-    // Supprime un utilisateur (compte + accès en prod ; accès local sinon).
+    // Retire l'accès d'un utilisateur (supprime son rôle). Le compte d'auth
+    // reste (suppression complète = via Supabase Auth), mais sans rôle la
+    // personne n'a plus aucun droit.
     async removeUser(entry) {
-      // Garde-fou : ne pas supprimer le DERNIER super admin.
+      // Garde-fou : ne pas retirer le DERNIER super admin.
       if (entry.role_name === "super_admin" && this.superAdminCount() <= 1) {
         this.showToast(
-          "Impossible de supprimer le dernier super administrateur.",
+          "Impossible de retirer le dernier super administrateur.",
           "error",
         );
         return;
       }
-      if (
-        !confirm(
-          "Supprimer définitivement le compte et l'accès de " +
-            entry.email +
-            " ?",
-        )
-      )
-        return;
-      const res = this.isLocalMode
-        ? await removeUserRole(entry.id)
-        : await deleteUser(entry.email);
+      if (!confirm("Retirer l'accès de " + entry.email + " ?")) return;
+      const res = await removeUserRole(entry.id);
       if (res.ok) {
         this.userRoles = await loadUserRoles();
-        this.showToast("Utilisateur supprimé.", "success");
+        this.showToast("Accès retiré.", "success");
       } else {
-        this.showToast(res.error || "Échec de la suppression.", "error");
+        this.showToast("Échec" + this.errText(res), "error");
       }
     },
 

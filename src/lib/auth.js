@@ -40,6 +40,21 @@ export async function signIn(identifier, password) {
   return { ok: true, user: data.user };
 }
 
+// Connexion par lien magique (email, sans mot de passe).
+// Envoie un email contenant un lien qui ramène sur la page admin connecté.
+export async function sendMagicLink(email) {
+  const sb = await getSupabase();
+  if (!sb) return { ok: false, error: "Client Supabase indisponible." };
+  const redirectTo =
+    typeof window !== "undefined" ? window.location.href.split("#")[0] : undefined;
+  const { error } = await sb.auth.signInWithOtp({
+    email: email.trim(),
+    options: { shouldCreateUser: true, emailRedirectTo: redirectTo },
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 export async function signOut() {
   if (AUTH_MODE === "dev") {
     sessionStorage.removeItem(DEV_SESSION_KEY);
