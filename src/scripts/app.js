@@ -7,12 +7,14 @@ import {
   insertReview,
   insertContact,
   insertQuote,
+  insertNewsletter,
   isSupabaseConfigured,
   turnstileSiteKey,
   DB_OFFLINE_MESSAGE,
 } from "../lib/db.js";
 import { listContent } from "../lib/content.js";
 import { solutionsSeed, articlesSeed, reviewsSeed } from "../data/seed.js";
+import { marked } from "marked";
 
             export function createApp() {
                 return {
@@ -573,6 +575,16 @@ import { solutionsSeed, articlesSeed, reviewsSeed } from "../data/seed.js";
                         window.scrollTo({ top: 0, behavior: "smooth" });
                     },
 
+                    // Affiche le contenu d'un article.
+                    // - S'il commence par une balise HTML → ancien format HTML,
+                    //   rendu tel quel (rétrocompatibilité).
+                    // - Sinon → interprété comme du Markdown.
+                    renderArticle(content) {
+                        if (!content) return "";
+                        if (/^\s*</.test(content)) return content;
+                        return marked.parse(content, { breaks: true });
+                    },
+
                     // Récupère le token Turnstile d'un widget (par id d'élément).
                     // Renvoie : "" si pas de token, null si Turnstile désactivé.
                     turnstileToken(id) {
@@ -759,6 +771,14 @@ import { solutionsSeed, articlesSeed, reviewsSeed } from "../data/seed.js";
                             );
                             return;
                         }
+                        // Limite de longueur (évite les erreurs et le spam)
+                        if (f.message.length > 4000) {
+                            this.showToast(
+                                "Message trop long (4000 caractères max). Merci de le raccourcir.",
+                                "error",
+                            );
+                            return;
+                        }
                         // Anti-bot : on exige une validation Turnstile si activé
                         const token = this.turnstileToken("ts-contact");
                         if (this.turnstileEnabled && !token) {
@@ -768,10 +788,20 @@ import { solutionsSeed, articlesSeed, reviewsSeed } from "../data/seed.js";
                             );
                             return;
                         }
-                        // Enregistrement du message de contact (best-effort)
+                        // Enregistrement du message de contact
                         const res = await insertContact(f, token);
-                        // Si un devis a été transmis depuis le calculateur,
-                        // on l'enregistre avec les coordonnées du contact.
+                        this.resetTurnstile("ts-contact");
+
+                        // En cas d'échec : PAS de confirmation, on montre la vraie erreur.
+                        if (!res.ok) {
+                            this.showToast(
+                                "Échec de l'envoi" + this.errMsg(res),
+                                "error",
+                            );
+                            return;
+                        }
+
+                        // Succès : on enregistre le devis éventuel, puis on confirme.
                         if (this.pendingQuote) {
                             await insertQuote(
                                 {
@@ -784,21 +814,48 @@ import { solutionsSeed, articlesSeed, reviewsSeed } from "../data/seed.js";
                             );
                             this.pendingQuote = null;
                         }
-                        this.resetTurnstile("ts-contact");
                         this.contactSent = true;
-                        if (res.ok) {
+                        this.showToast(
+                            res.local
+                                ? "Message reçu (enregistré localement)."
+                                : "Message envoyé avec succès !",
+                            "success",
+                        );
+                    },
+
+                    // Extrait un message d'erreur lisible (Supabase, fetch…).
+                    errMsg(res) {
+                        const e = res && res.error;
+                        if (!e) return ".";
+                        const msg =
+                            typeof e === "string"
+                                ? e
+                                : e.message || JSON.stringify(e);
+                        return " — " + msg;
+                    },
+
+                    // Inscription à la newsletter (footer).
+                    async subscribeNewsletter() {
+                        const email = (this.newsletterEmail || "").trim();
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                             this.showToast(
-                                "Message envoyé avec succès !",
-                                "success",
+                                "Veuillez entrer une adresse email valide.",
+                                "error",
                             );
-                        } else if (res.offline) {
+                            return;
+                        }
+                        const res = await insertNewsletter(email);
+                        if (res.ok) {
+                            this.newsletterEmail = "";
                             this.showToast(
-                                "Message reçu. " + DB_OFFLINE_MESSAGE,
+                                res.already
+                                    ? "Vous êtes déjà inscrit(e) !"
+                                    : "Inscription confirmée !",
                                 "success",
                             );
                         } else {
                             this.showToast(
-                                "Message pris en compte, mais l'enregistrement a échoué.",
+                                "Inscription impossible" + this.errMsg(res),
                                 "error",
                             );
                         }

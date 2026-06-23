@@ -86,6 +86,7 @@ export function createAdminApp() {
     reviews: [],
     contacts: [],
     quotes: [],
+    newsletter: [],
 
     // --- Édition rôle / utilisateur ---
     roleEdit: null, // rôle en cours d'édition
@@ -165,6 +166,7 @@ export function createAdminApp() {
         if (this.can("leads.view")) {
           this.contacts = await listContent("contacts");
           this.quotes = await listContent("quotes");
+          this.newsletter = await listContent("newsletter");
         }
         if (this.can("roles.manage")) this.roles = await loadRoles();
         if (this.can("users.manage")) {

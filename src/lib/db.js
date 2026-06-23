@@ -110,3 +110,19 @@ export function insertQuote(quote, token) {
     token,
   );
 }
+
+// ---------- NEWSLETTER ----------
+// Inscription directe (sans Edge Function) : un email simple, géré par la
+// couche de contenu (Supabase en prod, localStorage en local).
+export async function insertNewsletter(email) {
+  const res = await saveContent("newsletter", { email });
+  // Email déjà inscrit (contrainte unique) → considéré comme un succès.
+  if (
+    !res.ok &&
+    res.error &&
+    /duplicate|unique|23505/i.test(JSON.stringify(res.error))
+  ) {
+    return { ok: true, already: true, local: isLocalMode };
+  }
+  return { ok: res.ok, local: isLocalMode, error: res.error };
+}

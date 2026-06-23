@@ -374,6 +374,19 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
             </div>
           </template>
         </div>
+
+        <h2 class="font-display font-700 text-lg mb-2 mt-8">
+          Newsletter
+          <span class="text-sol-300/40 text-sm" x-text="'('+newsletter.length+')'"></span>
+        </h2>
+        <p x-show="!newsletter.length" class="text-sol-200/40 text-sm py-4">
+          Aucun inscrit.
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <template x-for="n in newsletter" :key="n.id ?? n.email">
+            <span class="glass rounded-full px-3 py-1.5 text-xs text-sol-200/70" x-text="n.email"></span>
+          </template>
+        </div>
       </section>
 
       <!-- ===== RÔLES & ACCÈS ===== -->
@@ -587,8 +600,13 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
               <textarea x-model="editItem.excerpt" rows="2" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-none"></textarea>
             </div>
             <div>
-              <label class="text-xs text-sol-300/50 mb-1 block">Contenu (HTML autorisé)</label>
-              <textarea x-model="editItem.content" rows="8" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-y font-mono text-xs"></textarea>
+              <label class="text-xs text-sol-300/50 mb-1 block">Contenu (Markdown)</label>
+              <textarea x-model="editItem.content" rows="10" placeholder="## Titre de section&#10;&#10;Votre paragraphe en **gras**, *italique*, avec un [lien](https://...).&#10;&#10;- point 1&#10;- point 2" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-y font-mono text-xs"></textarea>
+              <p class="text-[11px] text-sol-300/40 mt-1">
+                Markdown : <code>## Titre</code>, <code>**gras**</code>,
+                <code>*italique*</code>, <code>- liste</code>,
+                <code>[lien](url)</code>. (Le HTML reste accepté.)
+              </p>
             </div>
           </div>
         </template>

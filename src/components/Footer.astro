@@ -82,7 +82,7 @@
                         <p class="text-sol-200/40 text-sm mb-3">
                             Recevez nos derniers articles et offres spéciales.
                         </p>
-                        <div class="flex gap-2">
+                        <form @submit.prevent="subscribeNewsletter()" class="flex gap-2">
                             <input
                                 x-model="newsletterEmail"
                                 type="email"
@@ -90,12 +90,12 @@
                                 class="flex-1 bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors min-w-0"
                             />
                             <button
-                                @click="newsletterEmail&&showToast('Inscription confirmée !','success');newsletterEmail=''"
+                                type="submit"
                                 class="btn-glow bg-sol-500 text-sol-950 px-4 rounded-lg cursor-pointer flex-shrink-0"
                             >
                                 <i class="fa-solid fa-arrow-right text-sm"></i>
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
                 <div
