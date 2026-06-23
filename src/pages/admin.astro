@@ -1,5 +1,7 @@
 ---
 import AdminLayout from "../layouts/AdminLayout.astro";
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
 ---
 
 <AdminLayout>
@@ -73,7 +75,7 @@ import AdminLayout from "../layouts/AdminLayout.astro";
         </button>
       </form>
       <a
-        href="/"
+        href={base}
         class="block text-center text-sol-300/50 text-xs mt-6 hover:text-sol-300"
       >
         <i class="fa-solid fa-arrow-left mr-1"></i>Retour au site
@@ -108,7 +110,7 @@ import AdminLayout from "../layouts/AdminLayout.astro";
         <div class="flex items-center gap-3 text-sm">
           <span class="text-sol-200/50 hidden sm:inline" x-text="authUser?.email"
           ></span>
-          <a href="/" class="text-sol-300/70 hover:text-sol-300" title="Site">
+          <a href={base} class="text-sol-300/70 hover:text-sol-300" title="Site">
             <i class="fa-solid fa-globe"></i>
           </a>
           <button

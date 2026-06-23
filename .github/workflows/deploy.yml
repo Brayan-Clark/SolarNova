@@ -44,10 +44,15 @@ jobs:
           # Anti-bot Turnstile (clé de site publique) + Edge Function (optionnels)
           PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
           PUBLIC_SUBMIT_ENDPOINT: ${{ vars.PUBLIC_SUBMIT_ENDPOINT }}
-          # URL/base GitHub Pages. Pour une page "projet", BASE doit valoir
-          # "/<nom-du-depot>". Adapte SITE à ton compte.
-          SITE: ${{ vars.SITE }}
-          BASE: ${{ vars.BASE }}
+          # URL/base GitHub Pages — DÉRIVÉS AUTOMATIQUEMENT du dépôt :
+          #   SITE = https://<utilisateur>.github.io
+          #   BASE = /<nom-du-depot>   (indispensable pour charger CSS/JS sur
+          #          une page "projet" du type user.github.io/depot/)
+          # Tu peux forcer d'autres valeurs via les Variables du dépôt
+          # (Settings → Secrets and variables → Actions → Variables), ex. pour
+          # un domaine personnalisé : SITE=https://mondomaine.com et BASE=/
+          SITE: ${{ vars.SITE || format('https://{0}.github.io', github.repository_owner) }}
+          BASE: ${{ vars.BASE || format('/{0}', github.event.repository.name) }}
 
       - name: Préparation de l'artefact Pages
         uses: actions/upload-pages-artifact@v3
