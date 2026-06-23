@@ -1,0 +1,15 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# env (ne jamais committer les clés)
+.env
+.env.local
+.env.*.local
+
+# logs / os
+*.log
+.DS_Store

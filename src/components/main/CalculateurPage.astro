@@ -1,0 +1,451 @@
+            <div x-show="page==='calculateur'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-10">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Outil Interactif</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Calculez Votre Besoin Énergétique
+                            </h1>
+                            <p class="text-sol-200/50 max-w-2xl mx-auto">
+                                Sélectionnez vos appareils, ajustez les durées
+                                d'utilisation, et découvrez la solution solaire
+                                idéale pour votre foyer ou entreprise.
+                            </p>
+                        </div>
+
+                        <div class="grid lg:grid-cols-5 gap-6">
+                            <!-- Panneau gauche : Sélection appareils (3 cols) -->
+                            <div class="lg:col-span-3">
+                                <!-- Catégories -->
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <button
+                                        @click="appCategory='all'"
+                                        class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all"
+                                        :class="appCategory==='all'?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                                    >
+                                        Tous
+                                    </button>
+                                    <template
+                                        x-for="cat in applianceCategories"
+                                        :key="cat.id"
+                                    >
+                                        <button
+                                            @click="appCategory=cat.id"
+                                            class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all"
+                                            :class="appCategory===cat.id?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                                            x-text="cat.label"
+                                        ></button>
+                                    </template>
+                                </div>
+                                <!-- Grille appareils -->
+                                <div
+                                    class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                                >
+                                    <template
+                                        x-for="app in filteredAppliances"
+                                        :key="app.id"
+                                    >
+                                        <div
+                                            class="app-card glass rounded-xl p-4 cursor-pointer select-none"
+                                            :class="isSelected(app.id)?'added':''"
+                                            @click="toggleAppliance(app)"
+                                        >
+                                            <div
+                                                class="flex items-center justify-between mb-2"
+                                            >
+                                                <i
+                                                    :class="app.icon"
+                                                    class="text-sol-400 text-lg"
+                                                ></i>
+                                                <i
+                                                    :class="isSelected(app.id)?'fa-solid fa-circle-check text-sol-400':'fa-regular fa-circle text-sol-700'"
+                                                    class="text-sm transition-colors"
+                                                ></i>
+                                            </div>
+                                            <div
+                                                class="font-medium text-sm leading-tight mb-1"
+                                                x-text="app.name"
+                                            ></div>
+                                            <div
+                                                class="text-sol-300/40 text-xs"
+                                                x-text="app.watts+' W'"
+                                            ></div>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!-- Ajout manuel -->
+                                <div class="mt-6">
+                                    <button
+                                        @click="showCustomForm=!showCustomForm"
+                                        class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-2"
+                                    >
+                                        <i
+                                            :class="showCustomForm?'fa-solid fa-minus':'fa-solid fa-plus'"
+                                            class="text-xs"
+                                        ></i>
+                                        Ajouter un appareil manuellement
+                                    </button>
+                                    <div
+                                        x-show="showCustomForm"
+                                        x-transition
+                                        class="glass rounded-xl p-5 mt-3"
+                                    >
+                                        <div class="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Nom de l'appareil</label
+                                                >
+                                                <input
+                                                    x-model="customApp.name"
+                                                    type="text"
+                                                    placeholder="Ex: Machine à coudre"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Consommation (Watts)</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.watts"
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="Ex: 200"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Quantité</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.qty"
+                                                    type="number"
+                                                    min="1"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Heures/jour</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.hours"
+                                                    type="number"
+                                                    min="0.5"
+                                                    max="24"
+                                                    step="0.5"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                        <button
+                                            @click="addCustomAppliance()"
+                                            class="mt-4 btn-glow bg-sol-500 text-sol-950 font-display font-600 px-5 py-2.5 rounded-lg cursor-pointer text-sm"
+                                        >
+                                            <i
+                                                class="fa-solid fa-plus mr-1.5"
+                                            ></i
+                                            >Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panneau droit : Sélection + Résultats (2 cols) -->
+                            <div class="lg:col-span-2 space-y-5">
+                                <!-- Liste sélectionnée -->
+                                <div class="glass rounded-2xl p-5">
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Appareils sélectionnés
+                                        </h3>
+                                        <button
+                                            x-show="selectedAppliances.length"
+                                            @click="selectedAppliances=[]"
+                                            class="text-xs text-sol-300/40 hover:text-red-400 transition-colors cursor-pointer"
+                                        >
+                                            Tout supprimer
+                                        </button>
+                                    </div>
+                                    <div
+                                        x-show="!selectedAppliances.length"
+                                        class="text-center py-8"
+                                    >
+                                        <i
+                                            class="fa-regular fa-hand-pointer text-sol-700 text-3xl mb-3 block"
+                                        ></i>
+                                        <p class="text-sol-300/30 text-sm">
+                                            Cliquez sur les appareils que vous
+                                            utilisez
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="space-y-2 max-h-[40vh] overflow-y-auto pr-1"
+                                    >
+                                        <template
+                                            x-for="(item,idx) in selectedAppliances"
+                                            :key="idx"
+                                        >
+                                            <div
+                                                class="bg-sol-950/50 rounded-xl p-3.5 group"
+                                            >
+                                                <div
+                                                    class="flex items-start justify-between mb-2"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-2"
+                                                    >
+                                                        <i
+                                                            :class="item.icon||'fa-solid fa-plug'"
+                                                            class="text-sol-400 text-sm"
+                                                        ></i>
+                                                        <span
+                                                            class="text-sm font-medium"
+                                                            x-text="item.name"
+                                                        ></span>
+                                                    </div>
+                                                    <button
+                                                        @click="selectedAppliances.splice(idx,1)"
+                                                        class="text-sol-700 hover:text-red-400 transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <i
+                                                            class="fa-solid fa-xmark text-xs"
+                                                        ></i>
+                                                    </button>
+                                                </div>
+                                                <div
+                                                    class="flex items-center gap-3"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-1.5"
+                                                    >
+                                                        <label
+                                                            class="text-xs text-sol-300/40"
+                                                            >Qté</label
+                                                        >
+                                                        <input
+                                                            x-model.number="item.qty"
+                                                            type="number"
+                                                            min="1"
+                                                            class="w-14 bg-sol-900/80 border border-sol-700/30 rounded px-2 py-1 text-xs text-center text-sol-200 focus:outline-none focus:border-sol-500/50"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center gap-1.5"
+                                                    >
+                                                        <label
+                                                            class="text-xs text-sol-300/40"
+                                                            >h/j</label
+                                                        >
+                                                        <input
+                                                            x-model.number="item.hours"
+                                                            type="number"
+                                                            min="0.5"
+                                                            max="24"
+                                                            step="0.5"
+                                                            class="w-14 bg-sol-900/80 border border-sol-700/30 rounded px-2 py-1 text-xs text-center text-sol-200 focus:outline-none focus:border-sol-500/50"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        class="ml-auto text-right"
+                                                    >
+                                                        <div
+                                                            class="text-xs text-sol-300/30"
+                                                        >
+                                                            Sous-total
+                                                        </div>
+                                                        <div
+                                                            class="text-sm font-display font-600 text-sol-400"
+                                                            x-text="(item.watts*item.qty*item.hours).toLocaleString()+' Wh'"
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Résultats -->
+                                <div
+                                    x-show="selectedAppliances.length"
+                                    class="glass rounded-2xl p-5"
+                                >
+                                    <h3
+                                        class="font-display font-700 text-sm mb-5"
+                                    >
+                                        Résultats
+                                    </h3>
+                                    <!-- Jauge -->
+                                    <div class="flex justify-center mb-5">
+                                        <svg
+                                            viewBox="0 0 120 120"
+                                            class="w-36 h-36"
+                                        >
+                                            <defs>
+                                                <linearGradient
+                                                    id="gaugeGrad"
+                                                    x1="0%"
+                                                    y1="0%"
+                                                    x2="100%"
+                                                    y2="0%"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stop-color="#00b34a"
+                                                    />
+                                                    <stop
+                                                        offset="50%"
+                                                        stop-color="#ffb300"
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stop-color="#ff6b35"
+                                                    />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle
+                                                cx="60"
+                                                cy="60"
+                                                r="50"
+                                                fill="none"
+                                                stroke="rgba(0,179,74,.08)"
+                                                stroke-width="8"
+                                            />
+                                            <circle
+                                                cx="60"
+                                                cy="60"
+                                                r="50"
+                                                fill="none"
+                                                stroke="url(#gaugeGrad)"
+                                                stroke-width="8"
+                                                stroke-linecap="round"
+                                                transform="rotate(-90 60 60)"
+                                                class="gauge-circle"
+                                                :stroke-dasharray="314.16"
+                                                :stroke-dashoffset="314.16-(314.16*Math.min(consumptionPercent,100)/100)"
+                                            />
+                                            <text
+                                                x="60"
+                                                y="54"
+                                                text-anchor="middle"
+                                                fill="#e6f7ed"
+                                                font-size="20"
+                                                font-weight="800"
+                                                font-family="Outfit"
+                                                x-text="totalDailyWh.toLocaleString()"
+                                            ></text>
+                                            <text
+                                                x="60"
+                                                y="72"
+                                                text-anchor="middle"
+                                                fill="#4dca7e"
+                                                font-size="10"
+                                                font-family="Space Grotesk"
+                                            >
+                                                Wh / jour
+                                            </text>
+                                        </svg>
+                                    </div>
+                                    <!-- Chiffres -->
+                                    <div class="grid grid-cols-3 gap-3 mb-5">
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                Pic
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalPeakWatts+' W'"
+                                            ></div>
+                                        </div>
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                / Jour
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalDailyWh.toLocaleString()+' Wh'"
+                                            ></div>
+                                        </div>
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                / Mois
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalMonthlyKWh+' kWh'"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                    <!-- Kit suggéré -->
+                                    <div
+                                        x-show="suggestedKit"
+                                        class="bg-gradient-to-br from-sol-800/40 to-sol-900/40 border border-sol-500/20 rounded-xl p-4"
+                                    >
+                                        <div
+                                            class="flex items-center gap-2 mb-2"
+                                        >
+                                            <i
+                                                class="fa-solid fa-wand-magic-sparkles text-gold-500 text-sm"
+                                            ></i>
+                                            <span
+                                                class="text-xs text-gold-400 font-display font-600 uppercase tracking-wider"
+                                                >Kit Recommandé</span
+                                            >
+                                        </div>
+                                        <h4
+                                            class="font-display font-700 text-lg mb-1"
+                                            x-text="suggestedKit.name"
+                                        ></h4>
+                                        <p
+                                            class="text-sol-200/50 text-xs mb-3"
+                                            x-text="suggestedKit.subtitle"
+                                        ></p>
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="text-sol-400 font-display font-600 text-sm"
+                                                x-text="suggestedKit.priceRange"
+                                            ></span>
+                                            <a
+                                                @click.prevent="requestQuote()"
+                                                class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg cursor-pointer text-xs"
+                                            >
+                                                Demander un devis
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== BLOG ==================== -->

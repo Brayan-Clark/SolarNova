@@ -1,0 +1,750 @@
+---
+import AdminLayout from "../layouts/AdminLayout.astro";
+---
+
+<AdminLayout>
+  <!-- ============ ÉCRAN DE CONNEXION ============ -->
+  <div
+    x-show="authChecked && !authed"
+    x-cloak
+    class="min-h-screen flex items-center justify-center px-4"
+  >
+    <div class="w-full max-w-md glass rounded-2xl p-8">
+      <div class="text-center mb-8">
+        <div
+          class="w-14 h-14 rounded-xl bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fa-solid fa-sun text-sol-950 text-xl"></i>
+        </div>
+        <h1 class="font-display font-700 text-2xl">
+          Administration <span class="text-grad">SolarNova</span>
+        </h1>
+        <p class="text-sol-200/50 text-sm mt-2">Espace de gestion du contenu</p>
+      </div>
+
+      <!-- Bandeau mode dev -->
+      <div
+        x-show="isDevAuth"
+        class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-3 mb-5 text-xs text-gold-300"
+      >
+        <i class="fa-solid fa-triangle-exclamation mr-1"></i>
+        <b>Mode développement</b> (Supabase non connecté). Accès local seulement —
+        <b>non valable en production</b>. Identifiant
+        <code class="text-gold-200" x-text="devCreds.user"></code> / mot de passe
+        <code class="text-gold-200" x-text="devCreds.pass"></code>.
+      </div>
+      <div
+        x-show="!isDevAuth"
+        class="bg-sol-500/10 border border-sol-500/30 rounded-lg p-3 mb-5 text-xs text-sol-300"
+      >
+        <i class="fa-solid fa-lock mr-1"></i> Connectez-vous avec l'email et le
+        mot de passe fournis par votre administrateur.
+      </div>
+
+      <form @submit.prevent="login()">
+        <label class="text-xs text-sol-300/50 mb-1 block">
+          <span x-text="isDevAuth ? 'Identifiant' : 'Email'"></span>
+        </label>
+        <input
+          type="text"
+          x-model="loginForm.id"
+          class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 mb-4"
+          autocomplete="username"
+        />
+        <label class="text-xs text-sol-300/50 mb-1 block">Mot de passe</label>
+        <input
+          type="password"
+          x-model="loginForm.pass"
+          class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 mb-4"
+          autocomplete="current-password"
+        />
+        <p
+          x-show="loginError"
+          x-text="loginError"
+          class="text-red-400 text-xs mb-4"
+        >
+        </p>
+        <button
+          type="submit"
+          :disabled="busy"
+          class="w-full btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 py-3 rounded-lg cursor-pointer text-sm disabled:opacity-60"
+        >
+          <i class="fa-solid fa-right-to-bracket mr-1.5"></i>Se connecter
+        </button>
+      </form>
+      <a
+        href="/"
+        class="block text-center text-sol-300/50 text-xs mt-6 hover:text-sol-300"
+      >
+        <i class="fa-solid fa-arrow-left mr-1"></i>Retour au site
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ TABLEAU DE BORD ============ -->
+  <div x-show="authed" x-cloak class="min-h-screen">
+    <!-- Barre supérieure -->
+    <header
+      class="sticky top-0 z-40 bg-sol-950/90 backdrop-blur-xl border-b border-sol-700/20"
+    >
+      <div
+        class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-4"
+      >
+        <div class="flex items-center gap-2">
+          <div
+            class="w-8 h-8 rounded-lg bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center"
+          >
+            <i class="fa-solid fa-sun text-sol-950 text-sm"></i>
+          </div>
+          <span class="font-display font-700"
+            >Admin <span class="text-grad">SolarNova</span></span
+          >
+          <span
+            class="ml-2 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full"
+            :class="isLocalMode ? 'bg-gold-500/15 text-gold-300' : 'bg-sol-500/15 text-sol-300'"
+            x-text="isLocalMode ? 'local' : 'supabase'"
+          ></span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="text-sol-200/50 hidden sm:inline" x-text="authUser?.email"
+          ></span>
+          <a href="/" class="text-sol-300/70 hover:text-sol-300" title="Site">
+            <i class="fa-solid fa-globe"></i>
+          </a>
+          <button
+            @click="logout()"
+            class="text-sol-300/70 hover:text-red-400"
+            title="Se déconnecter"
+          >
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+      <!-- Bandeau local -->
+      <div
+        x-show="isLocalMode"
+        class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-3 mb-6 text-xs text-gold-300"
+      >
+        <i class="fa-solid fa-circle-info mr-1"></i> Mode local : les
+        modifications sont stockées dans ce navigateur (localStorage) à des fins
+        de démo. Connectez Supabase pour un stockage réel et partagé.
+      </div>
+
+      <!-- Accès non autorisé (connecté mais aucun droit attribué) -->
+      <div
+        x-show="!authorized"
+        class="glass rounded-xl p-8 text-center"
+      >
+        <i class="fa-solid fa-lock text-3xl text-sol-300/40 mb-3"></i>
+        <h2 class="font-display font-700 text-lg">Accès non attribué</h2>
+        <p class="text-sol-200/50 text-sm mt-2">
+          Votre compte n'a pas encore de rôle. Demandez à un administrateur de
+          vous attribuer des droits.
+        </p>
+      </div>
+
+      <!-- Onglets (filtrés selon les permissions) -->
+      <div x-show="authorized" class="flex flex-wrap gap-2 mb-6">
+        <template
+          x-for="t in [
+            {id:'articles', label:'Articles', icon:'fa-newspaper', perm:'articles.manage'},
+            {id:'solutions', label:'Solutions', icon:'fa-solar-panel', perm:'solutions.manage'},
+            {id:'reviews', label:'Avis', icon:'fa-star', perm:'reviews.moderate'},
+            {id:'leads', label:'Demandes', icon:'fa-inbox', perm:'leads.view'},
+            {id:'roles', label:'Rôles & accès', icon:'fa-user-shield', perm:'roles.manage'},
+            {id:'users', label:'Utilisateurs', icon:'fa-users', perm:'users.manage'}
+          ]"
+          :key="t.id"
+        >
+          <button
+            x-show="can(t.perm)"
+            @click="tab=t.id"
+            class="px-4 py-2 rounded-lg text-sm font-display font-600 cursor-pointer transition-colors"
+            :class="tab===t.id ? 'bg-sol-500 text-sol-950' : 'glass text-sol-200/70 hover:text-sol-200'"
+          >
+            <i class="fa-solid mr-1.5" :class="'fa-'+t.icon"></i><span
+              x-text="t.label"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- ===== ARTICLES ===== -->
+      <section x-show="tab==='articles'">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display font-700 text-lg">
+            Articles <span class="text-sol-300/40 text-sm" x-text="'('+articles.length+')'"></span>
+          </h2>
+          <button
+            @click="startCreate('articles')"
+            class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg text-sm"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>Nouvel article
+          </button>
+        </div>
+        <div class="space-y-2">
+          <template x-for="a in articles" :key="a.id">
+            <div
+              class="glass rounded-lg p-4 flex items-center justify-between gap-4"
+            >
+              <div class="min-w-0">
+                <div class="text-xs text-sol-300/50" x-text="a.category+' · '+a.date"></div>
+                <div class="font-display font-600 truncate" x-text="a.title"></div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button
+                  @click="startEdit('articles', a)"
+                  class="w-8 h-8 rounded-lg glass hover:text-sol-300"
+                  title="Modifier"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button
+                  @click="remove('articles', a.id)"
+                  class="w-8 h-8 rounded-lg glass hover:text-red-400"
+                  title="Supprimer"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+          <p
+            x-show="!articles.length"
+            class="text-sol-200/40 text-sm text-center py-8"
+          >
+            Aucun article.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== SOLUTIONS ===== -->
+      <section x-show="tab==='solutions'">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display font-700 text-lg">
+            Solutions <span class="text-sol-300/40 text-sm" x-text="'('+solutions.length+')'"></span>
+          </h2>
+          <button
+            @click="startCreate('solutions')"
+            class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg text-sm"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>Nouvelle solution
+          </button>
+        </div>
+        <div class="space-y-2">
+          <template x-for="s in solutions" :key="s.id">
+            <div
+              class="glass rounded-lg p-4 flex items-center justify-between gap-4"
+            >
+              <div class="min-w-0">
+                <div class="font-display font-600 truncate" x-text="s.name"></div>
+                <div class="text-xs text-sol-300/50" x-text="s.subtitle+' · '+s.priceRange"></div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button
+                  @click="startEdit('solutions', s)"
+                  class="w-8 h-8 rounded-lg glass hover:text-sol-300"
+                  title="Modifier"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button
+                  @click="remove('solutions', s.id)"
+                  class="w-8 h-8 rounded-lg glass hover:text-red-400"
+                  title="Supprimer"
+                >
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+          <p
+            x-show="!solutions.length"
+            class="text-sol-200/40 text-sm text-center py-8"
+          >
+            Aucune solution.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== AVIS ===== -->
+      <section x-show="tab==='reviews'">
+        <h2 class="font-display font-700 text-lg mb-4">
+          Avis <span class="text-sol-300/40 text-sm" x-text="'('+reviews.length+')'"></span>
+        </h2>
+        <div class="space-y-2">
+          <template x-for="r in reviews" :key="r.id ?? (r.name + r.comment)">
+            <div class="glass rounded-lg p-4">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-display font-600" x-text="r.name"></span>
+                    <span class="text-gold-400 text-xs" x-text="stars(r.rating)"></span>
+                    <span
+                      class="text-[10px] px-2 py-0.5 rounded-full"
+                      :class="r.approved===false ? 'bg-gold-500/15 text-gold-300' : 'bg-sol-500/15 text-sol-300'"
+                      x-text="r.approved===false ? 'en attente' : 'publié'"
+                    ></span>
+                  </div>
+                  <div class="text-xs text-sol-300/50" x-text="r.solution+' · '+r.date"></div>
+                  <p class="text-sol-200/70 text-sm mt-2" x-text="r.comment"></p>
+                </div>
+                <div class="flex flex-col items-center gap-2 shrink-0">
+                  <button
+                    x-show="r.approved===false"
+                    @click="setApproved(r, true)"
+                    class="w-8 h-8 rounded-lg glass hover:text-sol-300"
+                    title="Publier"
+                  >
+                    <i class="fa-solid fa-check"></i>
+                  </button>
+                  <button
+                    x-show="r.approved!==false"
+                    @click="setApproved(r, false)"
+                    class="w-8 h-8 rounded-lg glass hover:text-gold-300"
+                    title="Masquer"
+                  >
+                    <i class="fa-solid fa-eye-slash"></i>
+                  </button>
+                  <button
+                    @click="remove('reviews', r.id)"
+                    class="w-8 h-8 rounded-lg glass hover:text-red-400"
+                    title="Supprimer"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+          <p
+            x-show="!reviews.length"
+            class="text-sol-200/40 text-sm text-center py-8"
+          >
+            Aucun avis.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== DEMANDES (lecture seule) ===== -->
+      <section x-show="tab==='leads'">
+        <h2 class="font-display font-700 text-lg mb-2">Messages de contact</h2>
+        <p
+          x-show="!contacts.length"
+          class="text-sol-200/40 text-sm py-4"
+        >
+          Aucun message. <span x-show="isLocalMode">(En local, les messages envoyés depuis le site apparaissent ici.)</span>
+        </p>
+        <div class="space-y-2 mb-8">
+          <template x-for="c in contacts" :key="c.id">
+            <div class="glass rounded-lg p-4">
+              <div class="flex items-center gap-2 text-sm">
+                <span class="font-display font-600" x-text="c.name"></span>
+                <span class="text-sol-300/50 text-xs" x-text="c.email"></span>
+                <span class="text-sol-300/40 text-xs" x-show="c.phone" x-text="'· '+c.phone"></span>
+              </div>
+              <div class="text-xs text-sol-300/50 mt-0.5" x-text="'Sujet : '+c.subject"></div>
+              <p class="text-sol-200/70 text-sm mt-2" x-text="c.message"></p>
+            </div>
+          </template>
+        </div>
+
+        <h2 class="font-display font-700 text-lg mb-2">Devis (calculateur)</h2>
+        <p
+          x-show="!quotes.length"
+          class="text-sol-200/40 text-sm py-4"
+        >
+          Aucun devis.
+        </p>
+        <div class="space-y-2">
+          <template x-for="q in quotes" :key="q.id">
+            <div class="glass rounded-lg p-4 text-sm">
+              <div class="flex items-center gap-2">
+                <span class="font-display font-600" x-text="q.contact_name || q.contactName || 'Anonyme'"></span>
+                <span class="text-sol-300/50 text-xs" x-text="q.contact_email || q.contactEmail || ''"></span>
+              </div>
+              <div class="text-xs text-sol-300/50 mt-1">
+                <span x-text="'Kit : '+(q.suggested_kit || q.suggestedKit || '—')"></span> ·
+                <span x-text="(q.total_daily_wh || q.totalDailyWh || 0)+' Wh/j'"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <!-- ===== RÔLES & ACCÈS ===== -->
+      <section x-show="tab==='roles'">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display font-700 text-lg">
+            Rôles & accès
+            <span class="text-sol-300/40 text-sm" x-text="'('+roles.length+')'"></span>
+          </h2>
+          <button
+            @click="startCreateRole()"
+            class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg text-sm"
+          >
+            <i class="fa-solid fa-plus mr-1"></i>Nouveau rôle
+          </button>
+        </div>
+        <div class="space-y-2">
+          <template x-for="r in roles" :key="r.id ?? r.name">
+            <div class="glass rounded-lg p-4">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="font-display font-600" x-text="r.label"></span>
+                    <span
+                      x-show="r.system"
+                      class="text-[10px] px-2 py-0.5 rounded-full bg-sol-500/15 text-sol-300"
+                      >système</span
+                    >
+                  </div>
+                  <div class="text-xs text-sol-300/50 mt-1">
+                    <span
+                      x-show="(r.permissions||[]).includes('*')"
+                      class="text-gold-300"
+                      >Toutes les permissions</span
+                    >
+                    <span
+                      x-show="!(r.permissions||[]).includes('*')"
+                      x-text="(r.permissions||[]).length + ' permission(s)'"
+                    ></span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button
+                    @click="startEditRole(r)"
+                    class="w-8 h-8 rounded-lg glass hover:text-sol-300"
+                    title="Modifier"
+                  >
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button
+                    x-show="!r.system"
+                    @click="deleteRole(r)"
+                    class="w-8 h-8 rounded-lg glass hover:text-red-400"
+                    title="Supprimer"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </section>
+
+      <!-- ===== UTILISATEURS ===== -->
+      <section x-show="tab==='users'">
+        <h2 class="font-display font-700 text-lg mb-4">Utilisateurs & rôles</h2>
+
+        <div
+          x-show="isLocalMode"
+          class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-3 mb-5 text-xs text-gold-300"
+        >
+          <i class="fa-solid fa-circle-info mr-1"></i> En local, il n'y a pas de
+          vraie authentification : la création de compte est <b>simulée</b> (le
+          mot de passe est ignoré) et ces comptes ne peuvent pas réellement se
+          connecter. Cette gestion devient réelle en production (Supabase Auth) ;
+          le 1er utilisateur connecté devient automatiquement super admin.
+        </div>
+
+        <!-- Créer un compte -->
+        <div class="glass rounded-lg p-4 mb-6">
+          <div class="text-sm font-display font-600 mb-1">
+            <i class="fa-solid fa-user-plus mr-1.5 text-sol-400"></i>Créer un compte
+          </div>
+          <p class="text-xs text-sol-300/50 mb-3">
+            C'est vous qui créez les accès : la personne se connecte ensuite avec
+            cet email et ce mot de passe sur la page de connexion.
+          </p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <input
+              type="email"
+              x-model="createForm.email"
+              placeholder="email@exemple.com"
+              autocomplete="off"
+              class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              type="text"
+              x-model="createForm.password"
+              :placeholder="isLocalMode ? 'Mot de passe (ignoré en local)' : 'Mot de passe'"
+              autocomplete="new-password"
+              class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+            <select
+              x-model="createForm.role_name"
+              class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            >
+              <option value="">Choisir un rôle</option>
+              <template x-for="r in roles" :key="r.id ?? r.name">
+                <option :value="r.name" x-text="r.label"></option>
+              </template>
+            </select>
+            <button
+              @click="createAccount()"
+              :disabled="busy"
+              class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg text-sm disabled:opacity-60"
+            >
+              <i class="fa-solid fa-plus mr-1"></i>Créer le compte
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <template x-for="u in userRoles" :key="u.id ?? u.email">
+            <div
+              class="glass rounded-lg p-4 flex items-center justify-between gap-3 flex-wrap"
+            >
+              <div class="min-w-0">
+                <div class="font-display font-600 truncate" x-text="u.email"></div>
+                <div class="text-xs text-sol-300/50" x-text="roleLabel(u.role_name)"></div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <select
+                  :value="u.role_name"
+                  @change="changeUserRole(u, $event.target.value)"
+                  class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-2 py-1.5 text-xs"
+                >
+                  <template x-for="r in roles" :key="r.id ?? r.name">
+                    <option :value="r.name" x-text="r.label"></option>
+                  </template>
+                </select>
+                <button
+                  @click="removeUser(u)"
+                  class="w-8 h-8 rounded-lg glass hover:text-red-400"
+                  title="Supprimer le compte"
+                >
+                  <i class="fa-solid fa-user-minus"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+          <p
+            x-show="!userRoles.length"
+            class="text-sol-200/40 text-sm text-center py-8"
+          >
+            Aucun utilisateur. Créez le premier compte ci-dessus.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ============ MODALE D'ÉDITION ============ -->
+  <div
+    x-show="editItem"
+    x-cloak
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    @click.self="cancelEdit()"
+  >
+    <div class="w-full max-w-2xl glass rounded-2xl p-6 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="font-display font-700 text-lg">
+          <span x-text="editItem && editItem.id ? 'Modifier' : 'Créer'"></span>
+          <span x-text="editColl==='articles' ? ' un article' : ' une solution'"></span>
+        </h3>
+        <button @click="cancelEdit()" class="text-sol-300/60 hover:text-sol-300">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Formulaire ARTICLE -->
+      <div x-show="editColl==='articles'" class="space-y-3">
+        <template x-if="editItem">
+          <div class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Catégorie</label>
+                <input x-model="editItem.category" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Date</label>
+                <input x-model="editItem.date" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Titre</label>
+              <input x-model="editItem.title" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Temps de lecture</label>
+                <input x-model="editItem.readTime" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Image (URL)</label>
+                <input x-model="editItem.image" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Extrait</label>
+              <textarea x-model="editItem.excerpt" rows="2" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            </div>
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Contenu (HTML autorisé)</label>
+              <textarea x-model="editItem.content" rows="8" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-y font-mono text-xs"></textarea>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Formulaire SOLUTION -->
+      <div x-show="editColl==='solutions'" class="space-y-3">
+        <template x-if="editItem">
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Nom</label>
+              <input x-model="editItem.name" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Sous-titre</label>
+              <input x-model="editItem.subtitle" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Puissance max (W)</label>
+                <input type="number" x-model.number="editItem.maxWatts" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Conso max (Wh/j)</label>
+                <input type="number" x-model.number="editItem.maxDailyWh" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Fourchette de prix</label>
+                <input x-model="editItem.priceRange" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Palier (tier)</label>
+                <input x-model="editItem.tier" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Icône (Font Awesome)</label>
+                <input x-model="editItem.icon" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-sol-300/50 mb-1 block">Dégradé (classes)</label>
+                <input x-model="editItem.color" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-sol-300/50 mb-1 block">Composants (un par ligne)</label>
+              <textarea x-model="componentsText" rows="5" class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm resize-y"></textarea>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 mt-6">
+        <button @click="cancelEdit()" class="glass px-4 py-2 rounded-lg text-sm text-sol-200/70">
+          Annuler
+        </button>
+        <button
+          @click="saveEdit()"
+          :disabled="busy"
+          class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-5 py-2 rounded-lg text-sm disabled:opacity-60"
+        >
+          <i class="fa-solid fa-floppy-disk mr-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MODALE RÔLE ============ -->
+  <div
+    x-show="roleEdit"
+    x-cloak
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    @click.self="cancelRole()"
+  >
+    <div
+      class="w-full max-w-lg glass rounded-2xl p-6 max-h-[90vh] overflow-y-auto"
+    >
+      <template x-if="roleEdit">
+        <div>
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="font-display font-700 text-lg">
+              <span x-text="roleEdit.id ? 'Modifier le rôle' : 'Nouveau rôle'"></span>
+            </h3>
+            <button @click="cancelRole()" class="text-sol-300/60 hover:text-sol-300">
+              <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <label class="text-xs text-sol-300/50 mb-1 block">Nom du rôle</label>
+          <input
+            x-model="roleEdit.label"
+            :disabled="roleEdit.system"
+            placeholder="ex. Éditeur, Modérateur…"
+            class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm mb-4 disabled:opacity-60"
+          />
+
+          <div
+            x-show="(roleEdit.permissions||[]).includes('*')"
+            class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-3 text-xs text-gold-300"
+          >
+            <i class="fa-solid fa-crown mr-1"></i> Super administrateur : possède
+            <b>toutes les permissions</b> (non modifiable).
+          </div>
+
+          <div x-show="!(roleEdit.permissions||[]).includes('*')">
+            <label class="text-xs text-sol-300/50 mb-2 block">Permissions</label>
+            <div class="space-y-2">
+              <template x-for="p in permsCatalog" :key="p.id">
+                <label
+                  class="flex items-center gap-3 glass rounded-lg px-3 py-2 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    :checked="(roleEdit.permissions||[]).includes(p.id)"
+                    @change="togglePerm(p.id)"
+                    class="accent-sol-500"
+                  />
+                  <span class="text-sm" x-text="p.label"></span>
+                  <code class="text-[10px] text-sol-300/40 ml-auto" x-text="p.id"></code>
+                </label>
+              </template>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 mt-6">
+            <button
+              @click="cancelRole()"
+              class="glass px-4 py-2 rounded-lg text-sm text-sol-200/70"
+            >
+              Annuler
+            </button>
+            <button
+              @click="saveRoleEdit()"
+              :disabled="busy || (roleEdit.permissions||[]).includes('*')"
+              class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-5 py-2 rounded-lg text-sm disabled:opacity-60"
+            >
+              <i class="fa-solid fa-floppy-disk mr-1"></i>Enregistrer
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div
+    x-show="toast.show"
+    x-cloak
+    x-transition
+    class="fixed bottom-6 right-6 z-[60] glass rounded-xl px-5 py-3 flex items-center gap-3"
+    :class="toast.type==='success' ? '' : 'bg-red-900/90 border-red-500/30'"
+  >
+    <i
+      :class="toast.type==='success' ? 'fa-solid fa-circle-check text-sol-400' : 'fa-solid fa-circle-exclamation text-red-400'"
+    ></i>
+    <span class="text-sm" x-text="toast.message"></span>
+  </div>
+</AdminLayout>

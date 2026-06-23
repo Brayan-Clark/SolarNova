@@ -1,0 +1,30 @@
+        <div
+            id="preloader"
+            class="fixed inset-0 z-[100] bg-sol-950 flex flex-col items-center justify-center"
+        >
+            <!-- Même soleil animé que la page d'accueil -->
+            <div
+                class="sun-container relative w-[260px] h-[260px]"
+                style="transform: scale(0.7)"
+            >
+                <div class="sun-rays absolute inset-0">
+                    <template x-for="i in 12"
+                        ><div
+                            class="sun-ray"
+                            :style="'transform:rotate('+i*30+'deg)'"
+                        ></div
+                    ></template>
+                </div>
+                <div
+                    class="sun-core absolute top-1/2 left-1/2"
+                    style="transform: translate(-50%, -50%)"
+                ></div>
+            </div>
+            <p
+                class="-mt-8 font-display font-300 text-sol-300 text-sm tracking-widest uppercase text-center"
+            >
+                SolarNova
+            </p>
+        </div>
+
+        <!-- Particules canvas -->

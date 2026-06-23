@@ -1,0 +1,66 @@
+name: Déploiement GitHub Pages
+
+# Déploie le site à chaque push sur main (ou manuellement).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions nécessaires au déploiement Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule exécution à la fois.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          # Clés Supabase injectées depuis les GitHub Secrets du dépôt
+          # (Settings → Secrets and variables → Actions). La clé "anon"
+          # est publique par design : la sécurité repose sur le RLS.
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+          # Anti-bot Turnstile (clé de site publique) + Edge Function (optionnels)
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.PUBLIC_TURNSTILE_SITE_KEY }}
+          PUBLIC_SUBMIT_ENDPOINT: ${{ vars.PUBLIC_SUBMIT_ENDPOINT }}
+          # URL/base GitHub Pages. Pour une page "projet", BASE doit valoir
+          # "/<nom-du-depot>". Adapte SITE à ton compte.
+          SITE: ${{ vars.SITE }}
+          BASE: ${{ vars.BASE }}
+
+      - name: Préparation de l'artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Déploiement sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

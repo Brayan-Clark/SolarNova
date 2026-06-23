@@ -1,0 +1,3340 @@
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SolarNova — Solutions d'Énergie Solaire</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script
+            defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+        ></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            sol: {
+                                50: "#e6f7ed",
+                                100: "#b3e8c8",
+                                200: "#80d9a3",
+                                300: "#4dca7e",
+                                400: "#26bf64",
+                                500: "#00b34a",
+                                600: "#008f3b",
+                                700: "#006b2c",
+                                800: "#00471d",
+                                900: "#021a0b",
+                                950: "#010d06",
+                            },
+                            gold: {
+                                300: "#ffe082",
+                                400: "#ffd54f",
+                                500: "#ffb300",
+                                600: "#ff8f00",
+                            },
+                        },
+                        fontFamily: {
+                            display: ["Outfit", "sans-serif"],
+                            body: ["Space Grotesk", "sans-serif"],
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                font-family: "Space Grotesk", sans-serif;
+                background: #010d06;
+                color: #e6f7ed;
+                overflow-x: hidden;
+            }
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                font-family: "Outfit", sans-serif;
+            }
+            [x-cloak] {
+                display: none !important;
+            }
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #010d06;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #006b2c;
+                border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #008f3b;
+            }
+
+            /* Soleil animé */
+            .sun-core {
+                width: 110px;
+                height: 110px;
+                border-radius: 50%;
+                background: radial-gradient(
+                    circle,
+                    #ffe082 0%,
+                    #ffb300 50%,
+                    #ff8f00 100%
+                );
+                box-shadow:
+                    0 0 50px rgba(255, 179, 0, 0.5),
+                    0 0 100px rgba(255, 179, 0, 0.25),
+                    0 0 180px rgba(255, 179, 0, 0.1);
+                animation: sunPulse 4s ease-in-out infinite;
+            }
+            @keyframes sunPulse {
+                0%,
+                100% {
+                    transform: translate(-50%, -50%) scale(1);
+                    box-shadow:
+                        0 0 50px rgba(255, 179, 0, 0.5),
+                        0 0 100px rgba(255, 179, 0, 0.25);
+                }
+                50% {
+                    transform: translate(-50%, -50%) scale(1.06);
+                    box-shadow:
+                        0 0 70px rgba(255, 179, 0, 0.7),
+                        0 0 140px rgba(255, 179, 0, 0.35);
+                }
+            }
+            .sun-rays {
+                animation: sunRotate 40s linear infinite;
+            }
+            @keyframes sunRotate {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            .sun-ray {
+                position: absolute;
+                width: 2px;
+                height: 28px;
+                background: linear-gradient(
+                    to top,
+                    rgba(255, 179, 0, 0.45),
+                    transparent
+                );
+                left: 50%;
+                top: 0;
+                margin-left: -1px;
+                transform-origin: center 130px;
+            }
+
+            /* Cartes verre */
+            .glass {
+                background: rgba(0, 40, 18, 0.45);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(0, 179, 74, 0.1);
+            }
+            .glass-hover:hover {
+                border-color: rgba(0, 179, 74, 0.3);
+                box-shadow: 0 0 30px rgba(0, 179, 74, 0.08);
+                transform: translateY(-4px);
+            }
+            .glass-hover {
+                transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Texte dégradé */
+            .text-grad {
+                background: linear-gradient(135deg, #00b34a, #ffb300);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* Flottement */
+            @keyframes floatY {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-16px);
+                }
+            }
+            .float-anim {
+                animation: floatY 6s ease-in-out infinite;
+            }
+
+            /* Lueur bouton */
+            .btn-glow {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+            .btn-glow::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(
+                    135deg,
+                    transparent 40%,
+                    rgba(255, 255, 255, 0.15) 50%,
+                    transparent 60%
+                );
+                transform: translateX(-100%);
+                transition: transform 0.6s ease;
+            }
+            .btn-glow:hover::after {
+                transform: translateX(100%);
+            }
+            .btn-glow:hover {
+                box-shadow: 0 0 25px rgba(0, 179, 74, 0.4);
+                transform: translateY(-2px);
+            }
+
+            /* Jauge circulaire */
+            .gauge-circle {
+                transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* Fond organique */
+            .blob-bg {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(80px);
+                opacity: 0.12;
+                pointer-events: none;
+            }
+
+            /* Toast */
+            .toast-enter {
+                animation: toastIn 0.4s ease-out forwards;
+            }
+            .toast-leave {
+                animation: toastOut 0.3s ease-in forwards;
+            }
+            @keyframes toastIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes toastOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+
+            /* Préchargeur */
+            #preloader {
+                transition: opacity 0.6s ease;
+            }
+            #preloader.hide {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            /* Transition pages */
+            .page-wrap {
+                transition:
+                    opacity 0.25s ease,
+                    transform 0.25s ease;
+            }
+            .page-fade {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            /* Étoiles avis */
+            .star-btn {
+                cursor: pointer;
+                transition:
+                    color 0.15s,
+                    transform 0.15s;
+            }
+            .star-btn:hover {
+                transform: scale(1.2);
+            }
+
+            /* Appareil card */
+            .app-card {
+                transition: all 0.3s ease;
+            }
+            .app-card:hover {
+                border-color: rgba(0, 179, 74, 0.4);
+                background: rgba(0, 60, 25, 0.6);
+            }
+            .app-card.added {
+                border-color: rgba(0, 179, 74, 0.5);
+                background: rgba(0, 80, 30, 0.4);
+            }
+
+            /* Nav active */
+            .nav-link {
+                position: relative;
+                transition: color 0.3s;
+            }
+            .nav-link::after {
+                content: "";
+                position: absolute;
+                bottom: -4px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background: #00b34a;
+                transition: width 0.3s ease;
+                border-radius: 1px;
+            }
+            .nav-link.active {
+                color: #00b34a;
+            }
+            .nav-link.active::after,
+            .nav-link:hover::after {
+                width: 100%;
+            }
+
+            /* Responsive soleil */
+            @media (max-width: 768px) {
+                .sun-container {
+                    transform: scale(0.6) !important;
+                    right: -40px !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .sun-container {
+                    transform: scale(0.45) !important;
+                    right: -60px !important;
+                }
+            }
+
+            /* Réduction de mouvement */
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    animation-duration: 0.01ms !important;
+                    transition-duration: 0.01ms !important;
+                }
+            }
+        </style>
+    </head>
+    <body
+        x-data="app()"
+        x-init="init()"
+        @keydown.escape="mobileMenu=false;blogArticle=null"
+    >
+        <!-- Préchargeur -->
+        <div
+            id="preloader"
+            class="fixed inset-0 z-[100] bg-sol-950 flex items-center justify-center"
+        >
+            <div class="text-center">
+                <div
+                    class="sun-core relative mx-auto"
+                    style="width: 70px; height: 70px; position: relative"
+                ></div>
+                <p
+                    class="mt-6 font-display font-300 text-sol-300 text-sm tracking-widest uppercase"
+                >
+                    SolarNova
+                </p>
+            </div>
+        </div>
+
+        <!-- Particules canvas -->
+        <canvas
+            id="particles-canvas"
+            class="fixed inset-0 z-0 pointer-events-none"
+        ></canvas>
+
+        <!-- Navigation -->
+        <nav
+            class="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+            :class="scrolled ? 'bg-sol-950/90 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-sol-700/20' : 'bg-transparent'"
+        >
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 lg:h-20">
+                    <!-- Logo -->
+                    <a
+                        @click.prevent="navigate('home')"
+                        class="flex items-center gap-2 cursor-pointer group"
+                    >
+                        <div
+                            class="w-9 h-9 rounded-lg bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center transition-transform group-hover:rotate-12"
+                        >
+                            <i class="fa-solid fa-sun text-sol-950 text-sm"></i>
+                        </div>
+                        <span
+                            class="font-display font-700 text-lg tracking-tight"
+                            >Solar<span class="text-grad">Nova</span></span
+                        >
+                    </a>
+                    <!-- Liens desktop -->
+                    <div class="hidden lg:flex items-center gap-8">
+                        <template x-for="l in navLinks" :key="l.id">
+                            <a
+                                @click.prevent="navigate(l.id)"
+                                class="nav-link text-sm font-medium cursor-pointer"
+                                :class="page===l.id ? 'active text-sol-400' : 'text-sol-200/70 hover:text-sol-200'"
+                                x-text="l.label"
+                            ></a>
+                        </template>
+                        <a
+                            @click.prevent="navigate('calculateur')"
+                            class="btn-glow bg-gradient-to-r from-sol-600 to-sol-500 text-sol-950 font-display font-600 text-sm px-5 py-2.5 rounded-full cursor-pointer"
+                        >
+                            <i class="fa-solid fa-bolt mr-1.5"></i>Calculateur
+                        </a>
+                    </div>
+                    <!-- Mobile toggle -->
+                    <button
+                        @click="mobileMenu=!mobileMenu"
+                        class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg glass"
+                        aria-label="Menu"
+                    >
+                        <i
+                            :class="mobileMenu?'fa-solid fa-xmark':'fa-solid fa-bars'"
+                            class="text-sol-300"
+                        ></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Menu mobile -->
+            <div
+                x-show="mobileMenu"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 -translate-y-4"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0 -translate-y-4"
+                class="lg:hidden bg-sol-950/95 backdrop-blur-xl border-t border-sol-700/20 px-4 pb-6"
+            >
+                <template x-for="l in navLinks" :key="l.id">
+                    <a
+                        @click.prevent="navigate(l.id);mobileMenu=false"
+                        class="block py-3 text-sm font-medium cursor-pointer border-b border-sol-800/40"
+                        :class="page===l.id?'text-sol-400':'text-sol-200/70'"
+                        x-text="l.label"
+                    ></a>
+                </template>
+                <a
+                    @click.prevent="navigate('calculateur');mobileMenu=false"
+                    class="block mt-4 text-center btn-glow bg-gradient-to-r from-sol-600 to-sol-500 text-sol-950 font-display font-600 text-sm px-5 py-3 rounded-full cursor-pointer"
+                >
+                    <i class="fa-solid fa-bolt mr-1.5"></i>Calculateur d'Énergie
+                </a>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main
+            class="page-wrap relative z-10"
+            :class="pageLeaving?'page-fade':''"
+        >
+            <!-- ==================== ACCUEIL ==================== -->
+            <div x-show="page==='home'" x-cloak>
+                <!-- Hero -->
+                <section
+                    class="relative min-h-screen flex items-center overflow-hidden pt-20"
+                >
+                    <!-- Blobs organiques -->
+                    <div
+                        class="blob-bg w-96 h-96 bg-sol-500 top-20 -left-48"
+                        style="position: absolute"
+                    ></div>
+                    <div
+                        class="blob-bg w-72 h-72 bg-gold-500 bottom-20 right-1/4"
+                        style="position: absolute"
+                    ></div>
+                    <!-- Soleil animé -->
+                    <div
+                        class="sun-container absolute right-[8%] top-1/2 -translate-y-1/2 w-[260px] h-[260px]"
+                        style="transform: translateY(-50%)"
+                    >
+                        <div class="sun-rays absolute inset-0">
+                            <template x-for="i in 12"
+                                ><div
+                                    class="sun-ray"
+                                    :style="'transform:rotate('+i*30+'deg)'"
+                                ></div
+                            ></template>
+                        </div>
+                        <div
+                            class="sun-core absolute top-1/2 left-1/2"
+                            style="transform: translate(-50%, -50%)"
+                        ></div>
+                    </div>
+                    <div
+                        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
+                    >
+                        <div class="max-w-2xl">
+                            <div
+                                class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-8"
+                            >
+                                <span
+                                    class="w-2 h-2 rounded-full bg-sol-400 animate-pulse"
+                                ></span>
+                                <span
+                                    class="text-xs font-medium text-sol-300 tracking-wide"
+                                    >Pionniers de l'énergie solaire depuis
+                                    2016</span
+                                >
+                            </div>
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl lg:text-7xl leading-[1.05] mb-6"
+                            >
+                                L'Énergie du<br /><span class="text-grad"
+                                    >Soleil</span
+                                >, à Votre Portée
+                            </h1>
+                            <p
+                                class="text-sol-200/60 text-lg sm:text-xl leading-relaxed mb-10 max-w-lg font-light"
+                            >
+                                Solutions solaires complètes — de la conception
+                                à l'installation. Alimentez votre maison, votre
+                                entreprise, votre avenir.
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <a
+                                    @click.prevent="navigate('calculateur')"
+                                    class="btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 px-8 py-4 rounded-full cursor-pointer text-sm tracking-wide inline-flex items-center gap-2"
+                                >
+                                    <i class="fa-solid fa-calculator"></i
+                                    >Calculer mes besoins
+                                </a>
+                                <a
+                                    @click.prevent="navigate('solutions')"
+                                    class="glass glass-hover font-display font-500 px-8 py-4 rounded-full cursor-pointer text-sm tracking-wide text-sol-200 inline-flex items-center gap-2"
+                                >
+                                    Voir nos solutions
+                                    <i
+                                        class="fa-solid fa-arrow-right text-xs"
+                                    ></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bande dégradé bas -->
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-sol-950 to-transparent"
+                    ></div>
+                </section>
+
+                <!-- Statistiques -->
+                <section id="stats-section" class="py-6 relative z-10">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="glass rounded-2xl p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6"
+                        >
+                            <template x-for="s in statsData" :key="s.label">
+                                <div class="text-center">
+                                    <div
+                                        class="font-display font-800 text-3xl sm:text-4xl text-grad"
+                                        x-text="displayStats[s.key]+s.suffix"
+                                    ></div>
+                                    <div
+                                        class="text-sol-300/60 text-sm mt-1"
+                                        x-text="s.label"
+                                    ></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pourquoi nous -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Nos Atouts</span
+                            >
+                            <h2
+                                class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                            >
+                                Pourquoi Choisir SolarNova
+                            </h2>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template x-for="f in features" :key="f.title">
+                                <div
+                                    class="glass glass-hover rounded-2xl p-7 group"
+                                >
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-sol-500/10 flex items-center justify-center mb-5 group-hover:bg-sol-500/20 transition-colors"
+                                    >
+                                        <i
+                                            :class="f.icon"
+                                            class="text-sol-400 text-lg"
+                                        ></i>
+                                    </div>
+                                    <h3
+                                        class="font-display font-700 text-lg mb-2"
+                                        x-text="f.title"
+                                    ></h3>
+                                    <p
+                                        class="text-sol-200/50 text-sm leading-relaxed"
+                                        x-text="f.desc"
+                                    ></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Aperçu solutions -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Nos Kits</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Solutions Clé en Main
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('solutions')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Toutes les solutions
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="s in solutions.slice(0,3)"
+                                :key="s.id"
+                            >
+                                <div
+                                    class="glass glass-hover rounded-2xl overflow-hidden cursor-pointer group"
+                                    @click="navigate('solutions')"
+                                >
+                                    <div
+                                        class="h-2 bg-gradient-to-r"
+                                        :class="s.color"
+                                    ></div>
+                                    <div class="p-6">
+                                        <div
+                                            class="flex items-center gap-3 mb-4"
+                                        >
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                            >
+                                                <i
+                                                    :class="s.icon"
+                                                    class="text-sol-400"
+                                                ></i>
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-display font-700"
+                                                    x-text="s.name"
+                                                ></h3>
+                                                <p
+                                                    class="text-sol-300/50 text-xs"
+                                                    x-text="s.subtitle"
+                                                ></p>
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-sol-200/50 text-sm mb-4"
+                                            x-text="s.components.slice(0,3).join(' · ')"
+                                        ></p>
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="text-sol-400 font-display font-600 text-sm"
+                                                x-text="s.priceRange"
+                                            ></span>
+                                            <i
+                                                class="fa-solid fa-arrow-right text-sol-500/50 group-hover:text-sol-400 group-hover:translate-x-1 transition-all text-sm"
+                                            ></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Avis preview -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Témoignages</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Ce Que Disent Nos Clients
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('avis')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Tous les avis
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="r in reviews.slice(0,3)"
+                                :key="r.name+r.date"
+                            >
+                                <div class="glass rounded-2xl p-6">
+                                    <div class="flex gap-1 mb-4">
+                                        <template x-for="i in 5"
+                                            ><i
+                                                :class="i<=r.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                class="text-sm"
+                                            ></i
+                                        ></template>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/60 text-sm leading-relaxed mb-4"
+                                        x-text="r.comment"
+                                    ></p>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-9 h-9 rounded-full bg-sol-500/20 flex items-center justify-center font-display font-700 text-sol-400 text-sm"
+                                            x-text="r.name.split(' ').map(n=>n[0]).join('')"
+                                        ></div>
+                                        <div>
+                                            <div
+                                                class="text-sm font-medium"
+                                                x-text="r.name"
+                                            ></div>
+                                            <div
+                                                class="text-xs text-sol-300/40"
+                                                x-text="r.solution"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Blog preview -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Blog</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Actualités & Conseils
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('blog')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Tous les articles
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="a in articles.slice(0,3)"
+                                :key="a.id"
+                            >
+                                <div
+                                    class="glass glass-hover rounded-2xl overflow-hidden cursor-pointer group"
+                                    @click="navigate('blog');$nextTick(()=>openArticle(a))"
+                                >
+                                    <div class="h-44 overflow-hidden">
+                                        <img
+                                            :src="a.image"
+                                            :alt="a.title"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    </div>
+                                    <div class="p-5">
+                                        <div
+                                            class="flex items-center gap-3 mb-3"
+                                        >
+                                            <span
+                                                class="text-xs text-sol-500 font-medium bg-sol-500/10 px-2.5 py-1 rounded-full"
+                                                x-text="a.category"
+                                            ></span>
+                                            <span
+                                                class="text-xs text-sol-300/40"
+                                                x-text="a.date"
+                                            ></span>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-base mb-2 group-hover:text-sol-400 transition-colors line-clamp-2"
+                                            x-text="a.title"
+                                        ></h3>
+                                        <p
+                                            class="text-sol-200/45 text-sm line-clamp-2"
+                                            x-text="a.excerpt"
+                                        ></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CTA final -->
+                <section class="py-20 relative">
+                    <div
+                        class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+                    >
+                        <div
+                            class="glass rounded-3xl p-10 sm:p-16 relative overflow-hidden"
+                        >
+                            <div
+                                class="blob-bg w-64 h-64 bg-sol-500 -top-32 -right-32"
+                                style="position: absolute"
+                            ></div>
+                            <div
+                                class="blob-bg w-48 h-48 bg-gold-500 -bottom-24 -left-24"
+                                style="position: absolute"
+                            ></div>
+                            <div class="relative z-10">
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mb-4"
+                                >
+                                    Prêt à Passer au Solaire ?
+                                </h2>
+                                <p
+                                    class="text-sol-200/50 mb-8 max-w-lg mx-auto"
+                                >
+                                    Obtenez une estimation gratuite et
+                                    personnalisée en quelques minutes grâce à
+                                    notre calculateur intelligent.
+                                </p>
+                                <a
+                                    @click.prevent="navigate('calculateur')"
+                                    class="btn-glow bg-gradient-to-r from-sol-500 to-gold-500 text-sol-950 font-display font-700 px-10 py-4 rounded-full cursor-pointer text-sm tracking-wide inline-flex items-center gap-2"
+                                >
+                                    <i class="fa-solid fa-rocket"></i>Lancer le
+                                    Calcul
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== SOLUTIONS ==================== -->
+            <div x-show="page==='solutions'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Catalogue</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Nos Solutions Solaires
+                            </h1>
+                            <p class="text-sol-200/50 max-w-xl mx-auto">
+                                Des kits adaptés à chaque besoin, du simple
+                                éclairage à l'alimentation industrielle. Chaque
+                                solution inclut matériel, installation et suivi.
+                            </p>
+                        </div>
+                        <!-- Filtres -->
+                        <div class="flex flex-wrap justify-center gap-2 mb-12">
+                            <button
+                                @click="solutionFilter='all'"
+                                class="px-4 py-2 rounded-full text-sm font-medium transition-all"
+                                :class="solutionFilter==='all'?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                            >
+                                Tous
+                            </button>
+                            <template
+                                x-for="t in ['basic','standard','premium','pro','industriel']"
+                                :key="t"
+                            >
+                                <button
+                                    @click="solutionFilter=t"
+                                    class="px-4 py-2 rounded-full text-sm font-medium transition-all capitalize"
+                                    :class="solutionFilter===t?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                                    x-text="t"
+                                ></button>
+                            </template>
+                        </div>
+                        <!-- Grille solutions -->
+                        <div class="grid lg:grid-cols-2 gap-6">
+                            <template
+                                x-for="s in filteredSolutions"
+                                :key="s.id"
+                            >
+                                <div class="glass rounded-2xl overflow-hidden">
+                                    <div
+                                        class="h-2 bg-gradient-to-r"
+                                        :class="s.color"
+                                    ></div>
+                                    <div class="p-7">
+                                        <div
+                                            class="flex items-start justify-between mb-5"
+                                        >
+                                            <div
+                                                class="flex items-center gap-4"
+                                            >
+                                                <div
+                                                    class="w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center"
+                                                    :class="s.color"
+                                                >
+                                                    <i
+                                                        :class="s.icon"
+                                                        class="text-white text-xl"
+                                                    ></i>
+                                                </div>
+                                                <div>
+                                                    <h3
+                                                        class="font-display font-800 text-xl"
+                                                        x-text="s.name"
+                                                    ></h3>
+                                                    <p
+                                                        class="text-sol-300/50 text-sm"
+                                                        x-text="s.subtitle"
+                                                    ></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="grid grid-cols-2 gap-3 mb-5"
+                                        >
+                                            <div
+                                                class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                            >
+                                                <div
+                                                    class="text-xs text-sol-300/40 mb-1"
+                                                >
+                                                    Puissance max
+                                                </div>
+                                                <div
+                                                    class="font-display font-700 text-sol-400"
+                                                    x-text="s.maxWatts+' W'"
+                                                ></div>
+                                            </div>
+                                            <div
+                                                class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                            >
+                                                <div
+                                                    class="text-xs text-sol-300/40 mb-1"
+                                                >
+                                                    Conso. max/jour
+                                                </div>
+                                                <div
+                                                    class="font-display font-700 text-sol-400"
+                                                    x-text="s.maxDailyWh+' Wh'"
+                                                ></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <h4
+                                                class="text-xs text-sol-300/40 uppercase tracking-wider mb-3"
+                                            >
+                                                Composants inclus
+                                            </h4>
+                                            <ul class="space-y-2">
+                                                <template
+                                                    x-for="c in s.components"
+                                                    :key="c"
+                                                >
+                                                    <li
+                                                        class="flex items-start gap-2.5 text-sm text-sol-200/60"
+                                                    >
+                                                        <i
+                                                            class="fa-solid fa-check text-sol-500 mt-0.5 text-xs flex-shrink-0"
+                                                        ></i>
+                                                        <span x-text="c"></span>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                        <div
+                                            class="flex items-center justify-between pt-5 border-t border-sol-700/20"
+                                        >
+                                            <div>
+                                                <div
+                                                    class="text-xs text-sol-300/40"
+                                                >
+                                                    À partir de
+                                                </div>
+                                                <div
+                                                    class="font-display font-800 text-lg text-grad"
+                                                    x-text="s.priceRange"
+                                                ></div>
+                                            </div>
+                                            <a
+                                                @click.prevent="navigate('contact')"
+                                                class="btn-glow bg-sol-500/10 border border-sol-500/30 text-sol-400 font-display font-600 px-5 py-2.5 rounded-full cursor-pointer text-sm hover:bg-sol-500/20 transition-colors"
+                                            >
+                                                Demander un devis
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== CALCULATEUR ==================== -->
+            <div x-show="page==='calculateur'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-10">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Outil Interactif</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Calculez Votre Besoin Énergétique
+                            </h1>
+                            <p class="text-sol-200/50 max-w-2xl mx-auto">
+                                Sélectionnez vos appareils, ajustez les durées
+                                d'utilisation, et découvrez la solution solaire
+                                idéale pour votre foyer ou entreprise.
+                            </p>
+                        </div>
+
+                        <div class="grid lg:grid-cols-5 gap-6">
+                            <!-- Panneau gauche : Sélection appareils (3 cols) -->
+                            <div class="lg:col-span-3">
+                                <!-- Catégories -->
+                                <div class="flex flex-wrap gap-2 mb-6">
+                                    <button
+                                        @click="appCategory='all'"
+                                        class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all"
+                                        :class="appCategory==='all'?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                                    >
+                                        Tous
+                                    </button>
+                                    <template
+                                        x-for="cat in applianceCategories"
+                                        :key="cat.id"
+                                    >
+                                        <button
+                                            @click="appCategory=cat.id"
+                                            class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all"
+                                            :class="appCategory===cat.id?'bg-sol-500 text-sol-950':'glass text-sol-300/60 hover:text-sol-200'"
+                                            x-text="cat.label"
+                                        ></button>
+                                    </template>
+                                </div>
+                                <!-- Grille appareils -->
+                                <div
+                                    class="grid grid-cols-2 sm:grid-cols-3 gap-3"
+                                >
+                                    <template
+                                        x-for="app in filteredAppliances"
+                                        :key="app.id"
+                                    >
+                                        <div
+                                            class="app-card glass rounded-xl p-4 cursor-pointer select-none"
+                                            :class="isSelected(app.id)?'added':''"
+                                            @click="toggleAppliance(app)"
+                                        >
+                                            <div
+                                                class="flex items-center justify-between mb-2"
+                                            >
+                                                <i
+                                                    :class="app.icon"
+                                                    class="text-sol-400 text-lg"
+                                                ></i>
+                                                <i
+                                                    :class="isSelected(app.id)?'fa-solid fa-circle-check text-sol-400':'fa-regular fa-circle text-sol-700'"
+                                                    class="text-sm transition-colors"
+                                                ></i>
+                                            </div>
+                                            <div
+                                                class="font-medium text-sm leading-tight mb-1"
+                                                x-text="app.name"
+                                            ></div>
+                                            <div
+                                                class="text-sol-300/40 text-xs"
+                                                x-text="app.watts+' W'"
+                                            ></div>
+                                        </div>
+                                    </template>
+                                </div>
+                                <!-- Ajout manuel -->
+                                <div class="mt-6">
+                                    <button
+                                        @click="showCustomForm=!showCustomForm"
+                                        class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-2"
+                                    >
+                                        <i
+                                            :class="showCustomForm?'fa-solid fa-minus':'fa-solid fa-plus'"
+                                            class="text-xs"
+                                        ></i>
+                                        Ajouter un appareil manuellement
+                                    </button>
+                                    <div
+                                        x-show="showCustomForm"
+                                        x-transition
+                                        class="glass rounded-xl p-5 mt-3"
+                                    >
+                                        <div class="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Nom de l'appareil</label
+                                                >
+                                                <input
+                                                    x-model="customApp.name"
+                                                    type="text"
+                                                    placeholder="Ex: Machine à coudre"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Consommation (Watts)</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.watts"
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="Ex: 200"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Quantité</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.qty"
+                                                    type="number"
+                                                    min="1"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Heures/jour</label
+                                                >
+                                                <input
+                                                    x-model.number="customApp.hours"
+                                                    type="number"
+                                                    min="0.5"
+                                                    max="24"
+                                                    step="0.5"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                        <button
+                                            @click="addCustomAppliance()"
+                                            class="mt-4 btn-glow bg-sol-500 text-sol-950 font-display font-600 px-5 py-2.5 rounded-lg cursor-pointer text-sm"
+                                        >
+                                            <i
+                                                class="fa-solid fa-plus mr-1.5"
+                                            ></i
+                                            >Ajouter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Panneau droit : Sélection + Résultats (2 cols) -->
+                            <div class="lg:col-span-2 space-y-5">
+                                <!-- Liste sélectionnée -->
+                                <div class="glass rounded-2xl p-5">
+                                    <div
+                                        class="flex items-center justify-between mb-4"
+                                    >
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Appareils sélectionnés
+                                        </h3>
+                                        <button
+                                            x-show="selectedAppliances.length"
+                                            @click="selectedAppliances=[]"
+                                            class="text-xs text-sol-300/40 hover:text-red-400 transition-colors cursor-pointer"
+                                        >
+                                            Tout supprimer
+                                        </button>
+                                    </div>
+                                    <div
+                                        x-show="!selectedAppliances.length"
+                                        class="text-center py-8"
+                                    >
+                                        <i
+                                            class="fa-regular fa-hand-pointer text-sol-700 text-3xl mb-3 block"
+                                        ></i>
+                                        <p class="text-sol-300/30 text-sm">
+                                            Cliquez sur les appareils que vous
+                                            utilisez
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="space-y-2 max-h-[40vh] overflow-y-auto pr-1"
+                                    >
+                                        <template
+                                            x-for="(item,idx) in selectedAppliances"
+                                            :key="idx"
+                                        >
+                                            <div
+                                                class="bg-sol-950/50 rounded-xl p-3.5 group"
+                                            >
+                                                <div
+                                                    class="flex items-start justify-between mb-2"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-2"
+                                                    >
+                                                        <i
+                                                            :class="item.icon||'fa-solid fa-plug'"
+                                                            class="text-sol-400 text-sm"
+                                                        ></i>
+                                                        <span
+                                                            class="text-sm font-medium"
+                                                            x-text="item.name"
+                                                        ></span>
+                                                    </div>
+                                                    <button
+                                                        @click="selectedAppliances.splice(idx,1)"
+                                                        class="text-sol-700 hover:text-red-400 transition-colors cursor-pointer opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <i
+                                                            class="fa-solid fa-xmark text-xs"
+                                                        ></i>
+                                                    </button>
+                                                </div>
+                                                <div
+                                                    class="flex items-center gap-3"
+                                                >
+                                                    <div
+                                                        class="flex items-center gap-1.5"
+                                                    >
+                                                        <label
+                                                            class="text-xs text-sol-300/40"
+                                                            >Qté</label
+                                                        >
+                                                        <input
+                                                            x-model.number="item.qty"
+                                                            type="number"
+                                                            min="1"
+                                                            class="w-14 bg-sol-900/80 border border-sol-700/30 rounded px-2 py-1 text-xs text-center text-sol-200 focus:outline-none focus:border-sol-500/50"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        class="flex items-center gap-1.5"
+                                                    >
+                                                        <label
+                                                            class="text-xs text-sol-300/40"
+                                                            >h/j</label
+                                                        >
+                                                        <input
+                                                            x-model.number="item.hours"
+                                                            type="number"
+                                                            min="0.5"
+                                                            max="24"
+                                                            step="0.5"
+                                                            class="w-14 bg-sol-900/80 border border-sol-700/30 rounded px-2 py-1 text-xs text-center text-sol-200 focus:outline-none focus:border-sol-500/50"
+                                                        />
+                                                    </div>
+                                                    <div
+                                                        class="ml-auto text-right"
+                                                    >
+                                                        <div
+                                                            class="text-xs text-sol-300/30"
+                                                        >
+                                                            Sous-total
+                                                        </div>
+                                                        <div
+                                                            class="text-sm font-display font-600 text-sol-400"
+                                                            x-text="(item.watts*item.qty*item.hours).toLocaleString()+' Wh'"
+                                                        ></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Résultats -->
+                                <div
+                                    x-show="selectedAppliances.length"
+                                    class="glass rounded-2xl p-5"
+                                >
+                                    <h3
+                                        class="font-display font-700 text-sm mb-5"
+                                    >
+                                        Résultats
+                                    </h3>
+                                    <!-- Jauge -->
+                                    <div class="flex justify-center mb-5">
+                                        <svg
+                                            viewBox="0 0 120 120"
+                                            class="w-36 h-36"
+                                        >
+                                            <defs>
+                                                <linearGradient
+                                                    id="gaugeGrad"
+                                                    x1="0%"
+                                                    y1="0%"
+                                                    x2="100%"
+                                                    y2="0%"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stop-color="#00b34a"
+                                                    />
+                                                    <stop
+                                                        offset="50%"
+                                                        stop-color="#ffb300"
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stop-color="#ff6b35"
+                                                    />
+                                                </linearGradient>
+                                            </defs>
+                                            <circle
+                                                cx="60"
+                                                cy="60"
+                                                r="50"
+                                                fill="none"
+                                                stroke="rgba(0,179,74,.08)"
+                                                stroke-width="8"
+                                            />
+                                            <circle
+                                                cx="60"
+                                                cy="60"
+                                                r="50"
+                                                fill="none"
+                                                stroke="url(#gaugeGrad)"
+                                                stroke-width="8"
+                                                stroke-linecap="round"
+                                                transform="rotate(-90 60 60)"
+                                                class="gauge-circle"
+                                                :stroke-dasharray="314.16"
+                                                :stroke-dashoffset="314.16-(314.16*Math.min(consumptionPercent,100)/100)"
+                                            />
+                                            <text
+                                                x="60"
+                                                y="54"
+                                                text-anchor="middle"
+                                                fill="#e6f7ed"
+                                                font-size="20"
+                                                font-weight="800"
+                                                font-family="Outfit"
+                                                x-text="totalDailyWh.toLocaleString()"
+                                            ></text>
+                                            <text
+                                                x="60"
+                                                y="72"
+                                                text-anchor="middle"
+                                                fill="#4dca7e"
+                                                font-size="10"
+                                                font-family="Space Grotesk"
+                                            >
+                                                Wh / jour
+                                            </text>
+                                        </svg>
+                                    </div>
+                                    <!-- Chiffres -->
+                                    <div class="grid grid-cols-3 gap-3 mb-5">
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                Pic
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalPeakWatts+' W'"
+                                            ></div>
+                                        </div>
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                / Jour
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalDailyWh.toLocaleString()+' Wh'"
+                                            ></div>
+                                        </div>
+                                        <div
+                                            class="bg-sol-950/50 rounded-xl p-3 text-center"
+                                        >
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-1"
+                                            >
+                                                / Mois
+                                            </div>
+                                            <div
+                                                class="font-display font-700 text-sol-400 text-sm"
+                                                x-text="totalMonthlyKWh+' kWh'"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                    <!-- Kit suggéré -->
+                                    <div
+                                        x-show="suggestedKit"
+                                        class="bg-gradient-to-br from-sol-800/40 to-sol-900/40 border border-sol-500/20 rounded-xl p-4"
+                                    >
+                                        <div
+                                            class="flex items-center gap-2 mb-2"
+                                        >
+                                            <i
+                                                class="fa-solid fa-wand-magic-sparkles text-gold-500 text-sm"
+                                            ></i>
+                                            <span
+                                                class="text-xs text-gold-400 font-display font-600 uppercase tracking-wider"
+                                                >Kit Recommandé</span
+                                            >
+                                        </div>
+                                        <h4
+                                            class="font-display font-700 text-lg mb-1"
+                                            x-text="suggestedKit.name"
+                                        ></h4>
+                                        <p
+                                            class="text-sol-200/50 text-xs mb-3"
+                                            x-text="suggestedKit.subtitle"
+                                        ></p>
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="text-sol-400 font-display font-600 text-sm"
+                                                x-text="suggestedKit.priceRange"
+                                            ></span>
+                                            <a
+                                                @click.prevent="navigate('contact')"
+                                                class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg cursor-pointer text-xs"
+                                            >
+                                                Demander un devis
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== BLOG ==================== -->
+            <div x-show="page==='blog'" x-cloak>
+                <!-- Liste articles -->
+                <div x-show="!blogArticle">
+                    <section class="pt-28 pb-20">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div class="text-center mb-14">
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Blog & Ressources</span
+                                >
+                                <h1
+                                    class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                                >
+                                    Articles & Conseils Solaires
+                                </h1>
+                                <p class="text-sol-200/50 max-w-xl mx-auto">
+                                    Restez informé sur les dernières tendances,
+                                    conseils pratiques et actualités du monde de
+                                    l'énergie renouvelable.
+                                </p>
+                            </div>
+                            <div
+                                class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                            >
+                                <template x-for="a in articles" :key="a.id">
+                                    <article
+                                        class="glass glass-hover rounded-2xl overflow-hidden cursor-pointer group"
+                                        @click="openArticle(a)"
+                                    >
+                                        <div
+                                            class="h-48 overflow-hidden relative"
+                                        >
+                                            <img
+                                                :src="a.image"
+                                                :alt="a.title"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                loading="lazy"
+                                            />
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-t from-sol-950/80 to-transparent"
+                                            ></div>
+                                            <span
+                                                class="absolute bottom-3 left-3 text-xs text-sol-100 font-medium bg-sol-500/80 backdrop-blur-sm px-2.5 py-1 rounded-full"
+                                                x-text="a.category"
+                                            ></span>
+                                        </div>
+                                        <div class="p-5">
+                                            <div
+                                                class="text-xs text-sol-300/40 mb-3"
+                                                x-text="a.date"
+                                            ></div>
+                                            <h2
+                                                class="font-display font-700 text-lg mb-2 group-hover:text-sol-400 transition-colors leading-snug"
+                                                x-text="a.title"
+                                            ></h2>
+                                            <p
+                                                class="text-sol-200/45 text-sm leading-relaxed line-clamp-3"
+                                                x-text="a.excerpt"
+                                            ></p>
+                                            <div
+                                                class="mt-4 text-sol-400 text-sm font-medium inline-flex items-center gap-1.5 group-hover:gap-2.5 transition-all"
+                                            >
+                                                Lire l'article
+                                                <i
+                                                    class="fa-solid fa-arrow-right text-xs"
+                                                ></i>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <!-- Détail article -->
+                <div
+                    x-show="blogArticle"
+                    x-transition:enter="transition ease-out duration-400"
+                    x-transition:enter-start="opacity-0"
+                    x-transition:enter-end="opacity-100"
+                >
+                    <section class="pt-28 pb-20" x-show="blogArticle">
+                        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <button
+                                @click="blogArticle=null"
+                                class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-2 mb-8"
+                            >
+                                <i class="fa-solid fa-arrow-left text-xs"></i>
+                                Retour aux articles
+                            </button>
+                            <template x-if="blogArticle">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <span
+                                            class="text-xs text-sol-100 font-medium bg-sol-500/20 px-3 py-1 rounded-full"
+                                            x-text="blogArticle.category"
+                                        ></span>
+                                        <span
+                                            class="text-xs text-sol-300/40"
+                                            x-text="blogArticle.date"
+                                        ></span>
+                                        <span
+                                            class="text-xs text-sol-300/40"
+                                            x-text="blogArticle.readTime"
+                                        ></span>
+                                    </div>
+                                    <h1
+                                        class="font-display font-900 text-3xl sm:text-4xl leading-tight mb-6"
+                                        x-text="blogArticle.title"
+                                    ></h1>
+                                    <div
+                                        class="h-64 sm:h-80 rounded-2xl overflow-hidden mb-8"
+                                    >
+                                        <img
+                                            :src="blogArticle.image"
+                                            :alt="blogArticle.title"
+                                            class="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div
+                                        class="prose prose-invert max-w-none text-sol-200/70 leading-relaxed space-y-4"
+                                        x-html="blogArticle.content"
+                                    ></div>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- ==================== AVIS ==================== -->
+            <div x-show="page==='avis'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Témoignages</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Avis de Nos Clients
+                            </h1>
+                            <p class="text-sol-200/50 max-w-xl mx-auto">
+                                Découvrez les retours d'expérience de ceux qui
+                                ont fait confiance à SolarNova pour leur
+                                transition énergétique.
+                            </p>
+                        </div>
+
+                        <!-- Stats avis -->
+                        <div
+                            class="glass rounded-2xl p-6 sm:p-8 mb-10 max-w-2xl mx-auto"
+                        >
+                            <div
+                                class="flex flex-col sm:flex-row items-center gap-8"
+                            >
+                                <div class="text-center">
+                                    <div
+                                        class="font-display font-900 text-5xl text-grad"
+                                        x-text="avgRating"
+                                    ></div>
+                                    <div
+                                        class="flex gap-0.5 mt-2 justify-center"
+                                    >
+                                        <template x-for="i in 5"
+                                            ><i
+                                                :class="i<=Math.round(avgRating)?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                class="text-sm"
+                                            ></i
+                                        ></template>
+                                    </div>
+                                    <div
+                                        class="text-sol-300/40 text-xs mt-1"
+                                        x-text="reviews.length+' avis'"
+                                    ></div>
+                                </div>
+                                <div class="flex-1 w-full space-y-2">
+                                    <template
+                                        x-for="star in [5,4,3,2,1]"
+                                        :key="star"
+                                    >
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="text-xs text-sol-300/50 w-3"
+                                                x-text="star"
+                                            ></span>
+                                            <i
+                                                class="fa-solid fa-star text-gold-500 text-xs"
+                                            ></i>
+                                            <div
+                                                class="flex-1 h-2 bg-sol-950/60 rounded-full overflow-hidden"
+                                            >
+                                                <div
+                                                    class="h-full bg-gold-500 rounded-full transition-all duration-500"
+                                                    :style="'width:'+(reviews.filter(r=>r.rating===star).length/reviews.length*100)+'%'"
+                                                ></div>
+                                            </div>
+                                            <span
+                                                class="text-xs text-sol-300/40 w-4 text-right"
+                                                x-text="reviews.filter(r=>r.rating===star).length"
+                                            ></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <!-- Formulaire -->
+                            <div class="lg:col-span-1">
+                                <div
+                                    class="glass rounded-2xl p-6 sticky top-24"
+                                >
+                                    <h3
+                                        class="font-display font-700 text-lg mb-5"
+                                    >
+                                        Laisser votre avis
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Votre nom</label
+                                            >
+                                            <input
+                                                x-model="reviewForm.name"
+                                                type="text"
+                                                placeholder="Jean Dupont"
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Solution achetée</label
+                                            >
+                                            <select
+                                                x-model="reviewForm.solution"
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                            >
+                                                <option value="">
+                                                    Choisir une solution
+                                                </option>
+                                                <template
+                                                    x-for="s in solutions"
+                                                    :key="s.id"
+                                                    ><option
+                                                        :value="s.name"
+                                                        x-text="s.name"
+                                                    ></option
+                                                ></template>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-2 block"
+                                                >Note</label
+                                            >
+                                            <div class="flex gap-1.5">
+                                                <template
+                                                    x-for="i in 5"
+                                                    :key="i"
+                                                >
+                                                    <i
+                                                        @click="reviewForm.rating=i"
+                                                        :class="i<=reviewForm.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-600'"
+                                                        class="star-btn text-xl"
+                                                    ></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Votre commentaire</label
+                                            >
+                                            <textarea
+                                                x-model="reviewForm.comment"
+                                                rows="4"
+                                                placeholder="Partagez votre expérience..."
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors resize-none"
+                                            ></textarea>
+                                        </div>
+                                        <button
+                                            @click="submitReview()"
+                                            class="w-full btn-glow bg-sol-500 text-sol-950 font-display font-600 py-3 rounded-lg cursor-pointer text-sm"
+                                        >
+                                            <i
+                                                class="fa-solid fa-paper-plane mr-1.5"
+                                            ></i
+                                            >Publier l'avis
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Liste avis -->
+                            <div class="lg:col-span-2 space-y-4">
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <button
+                                        @click="reviewFilter='all'"
+                                        class="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                                        :class="reviewFilter==='all'?'bg-sol-500 text-sol-950':'glass text-sol-300/60'"
+                                    >
+                                        Tous
+                                    </button>
+                                    <template
+                                        x-for="s in solutions"
+                                        :key="s.id"
+                                    >
+                                        <button
+                                            @click="reviewFilter=s.name"
+                                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                                            :class="reviewFilter===s.name?'bg-sol-500 text-sol-950':'glass text-sol-300/60'"
+                                            x-text="s.name"
+                                        ></button>
+                                    </template>
+                                </div>
+                                <template
+                                    x-for="r in filteredReviews"
+                                    :key="r.name+r.date+r.comment"
+                                >
+                                    <div class="glass rounded-xl p-5">
+                                        <div
+                                            class="flex items-start justify-between mb-3"
+                                        >
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-sol-500/20 flex items-center justify-center font-display font-700 text-sol-400 text-sm"
+                                                    x-text="r.name.split(' ').map(n=>n[0]).join('')"
+                                                ></div>
+                                                <div>
+                                                    <div
+                                                        class="font-medium text-sm"
+                                                        x-text="r.name"
+                                                    ></div>
+                                                    <div
+                                                        class="text-xs text-sol-300/40"
+                                                        x-text="r.solution+' · '+r.date"
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-0.5">
+                                                <template x-for="i in 5"
+                                                    ><i
+                                                        :class="i<=r.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                        class="text-xs"
+                                                    ></i
+                                                ></template>
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-sol-200/55 text-sm leading-relaxed"
+                                            x-text="r.comment"
+                                        ></p>
+                                    </div>
+                                </template>
+                                <div
+                                    x-show="!filteredReviews.length"
+                                    class="text-center py-12 text-sol-300/30 text-sm"
+                                >
+                                    Aucun avis pour cette solution.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== À PROPOS ==================== -->
+            <div x-show="page==='apropos'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <!-- Histoire -->
+                        <div
+                            class="grid lg:grid-cols-2 gap-12 items-center mb-20"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Notre Histoire</span
+                                >
+                                <h1
+                                    class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-6"
+                                >
+                                    Bâtir un Avenir Durable
+                                </h1>
+                                <p class="text-sol-200/55 leading-relaxed mb-4">
+                                    Fondée en 2016, SolarNova est née d'une
+                                    conviction simple : l'énergie solaire n'est
+                                    pas un luxe, c'est un droit. Dans une région
+                                    où l'accès à l'électricité reste un défi
+                                    quotidien, nous avons fait le choix de
+                                    rendre le solaire accessible, fiable et
+                                    abordable.
+                                </p>
+                                <p class="text-sol-200/55 leading-relaxed mb-4">
+                                    Notre équipe de techniciens certifiés
+                                    accompagne chaque client — du particulier à
+                                    l'industriel — dans la conception,
+                                    l'installation et le suivi de systèmes
+                                    photovoltaïques sur mesure. Nous ne vendons
+                                    pas seulement des panneaux, nous offrons une
+                                    indépendance énergétique.
+                                </p>
+                                <p class="text-sol-200/55 leading-relaxed">
+                                    Aujourd'hui, avec plus de 450 projets
+                                    réalisés et 850 kWc installés, SolarNova est
+                                    un acteur de référence dans le domaine des
+                                    énergies renouvelables.
+                                </p>
+                            </div>
+                            <div class="relative">
+                                <div class="rounded-2xl overflow-hidden">
+                                    <img
+                                        src="https://picsum.photos/seed/solarnova-team/600/450.jpg"
+                                        alt="Équipe SolarNova"
+                                        class="w-full h-80 object-cover"
+                                    />
+                                </div>
+                                <div
+                                    class="absolute -bottom-6 -left-6 glass rounded-xl p-5 float-anim"
+                                >
+                                    <div
+                                        class="font-display font-900 text-3xl text-grad"
+                                    >
+                                        8+
+                                    </div>
+                                    <div class="text-sol-300/50 text-xs">
+                                        Années d'expérience
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Valeurs -->
+                        <div class="mb-20">
+                            <h2
+                                class="font-display font-800 text-3xl text-center mb-10"
+                            >
+                                Nos Valeurs
+                            </h2>
+                            <div
+                                class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
+                            >
+                                <div
+                                    class="glass glass-hover rounded-2xl p-6 text-center"
+                                >
+                                    <div
+                                        class="w-14 h-14 rounded-2xl bg-sol-500/10 flex items-center justify-center mx-auto mb-4"
+                                    >
+                                        <i
+                                            class="fa-solid fa-leaf text-sol-400 text-xl"
+                                        ></i>
+                                    </div>
+                                    <h3 class="font-display font-700 mb-2">
+                                        Durabilité
+                                    </h3>
+                                    <p class="text-sol-200/45 text-sm">
+                                        Chaque installation contribue à réduire
+                                        l'empreinte carbone et préserver notre
+                                        planète.
+                                    </p>
+                                </div>
+                                <div
+                                    class="glass glass-hover rounded-2xl p-6 text-center"
+                                >
+                                    <div
+                                        class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center mx-auto mb-4"
+                                    >
+                                        <i
+                                            class="fa-solid fa-handshake text-gold-400 text-xl"
+                                        ></i>
+                                    </div>
+                                    <h3 class="font-display font-700 mb-2">
+                                        Intégrité
+                                    </h3>
+                                    <p class="text-sol-200/45 text-sm">
+                                        Des devis transparents, pas de coûts
+                                        cachés, un accompagnement honnête à
+                                        chaque étape.
+                                    </p>
+                                </div>
+                                <div
+                                    class="glass glass-hover rounded-2xl p-6 text-center"
+                                >
+                                    <div
+                                        class="w-14 h-14 rounded-2xl bg-sol-500/10 flex items-center justify-center mx-auto mb-4"
+                                    >
+                                        <i
+                                            class="fa-solid fa-gear text-sol-400 text-xl"
+                                        ></i>
+                                    </div>
+                                    <h3 class="font-display font-700 mb-2">
+                                        Qualité
+                                    </h3>
+                                    <p class="text-sol-200/45 text-sm">
+                                        Matériel certifié tiers, installations
+                                        aux normes, tests rigoureux avant mise
+                                        en service.
+                                    </p>
+                                </div>
+                                <div
+                                    class="glass glass-hover rounded-2xl p-6 text-center"
+                                >
+                                    <div
+                                        class="w-14 h-14 rounded-2xl bg-gold-500/10 flex items-center justify-center mx-auto mb-4"
+                                    >
+                                        <i
+                                            class="fa-solid fa-users text-gold-400 text-xl"
+                                        ></i>
+                                    </div>
+                                    <h3 class="font-display font-700 mb-2">
+                                        Proximité
+                                    </h3>
+                                    <p class="text-sol-200/45 text-sm">
+                                        Un interlocuteur unique, un suivi
+                                        personnalisé, un service après-vente
+                                        réactif.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Chiffres clés -->
+                        <div class="glass rounded-2xl p-8 sm:p-12">
+                            <h2
+                                class="font-display font-800 text-2xl text-center mb-10"
+                            >
+                                SolarNova en Chiffres
+                            </h2>
+                            <div
+                                class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center"
+                            >
+                                <div>
+                                    <div
+                                        class="font-display font-900 text-4xl text-grad"
+                                    >
+                                        450+
+                                    </div>
+                                    <div class="text-sol-300/50 text-sm mt-1">
+                                        Projets réalisés
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        class="font-display font-900 text-4xl text-grad"
+                                    >
+                                        320+
+                                    </div>
+                                    <div class="text-sol-300/50 text-sm mt-1">
+                                        Clients satisfaits
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        class="font-display font-900 text-4xl text-grad"
+                                    >
+                                        850
+                                    </div>
+                                    <div class="text-sol-300/50 text-sm mt-1">
+                                        kWc installés
+                                    </div>
+                                </div>
+                                <div>
+                                    <div
+                                        class="font-display font-900 text-4xl text-grad"
+                                    >
+                                        98%
+                                    </div>
+                                    <div class="text-sol-300/50 text-sm mt-1">
+                                        Taux de satisfaction
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== CONTACT ==================== -->
+            <div x-show="page==='contact'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Contact</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Parlons de Votre Projet
+                            </h1>
+                            <p class="text-sol-200/50 max-w-xl mx-auto">
+                                Une question, un projet, un devis ? Nos experts
+                                sont à votre écoute pour vous accompagner.
+                            </p>
+                        </div>
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <!-- Infos contact -->
+                            <div class="space-y-4">
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-location-dot text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Adresse
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        Quartier Commerce, Rue 14<br />Bamako,
+                                        Mali
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-phone text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Téléphone
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        +223 70 00 00 00<br />+223 80 00 00 00
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-envelope text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Email
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        contact@solarnova.ml<br />devis@solarnova.ml
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-clock text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Horaires
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        Lun - Sam : 8h00 - 18h00<br />Dimanche :
+                                        Fermé
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Formulaire -->
+                            <div class="lg:col-span-2">
+                                <div class="glass rounded-2xl p-6 sm:p-8">
+                                    <div
+                                        x-show="contactSent"
+                                        class="text-center py-12"
+                                    >
+                                        <div
+                                            class="w-16 h-16 rounded-full bg-sol-500/20 flex items-center justify-center mx-auto mb-4"
+                                        >
+                                            <i
+                                                class="fa-solid fa-check text-sol-400 text-2xl"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-xl mb-2"
+                                        >
+                                            Message Envoyé
+                                        </h3>
+                                        <p class="text-sol-200/50 text-sm mb-6">
+                                            Merci pour votre message. Notre
+                                            équipe vous répondra dans les plus
+                                            brefs délais.
+                                        </p>
+                                        <button
+                                            @click="contactSent=false;contactForm={name:'',email:'',phone:'',subject:'',message:''}"
+                                            class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300"
+                                        >
+                                            Envoyer un autre message
+                                        </button>
+                                    </div>
+                                    <div x-show="!contactSent">
+                                        <div
+                                            class="grid sm:grid-cols-2 gap-4 mb-4"
+                                        >
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Nom complet</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.name"
+                                                    type="text"
+                                                    placeholder="Votre nom"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Email</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.email"
+                                                    type="email"
+                                                    placeholder="votre@email.com"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="grid sm:grid-cols-2 gap-4 mb-4"
+                                        >
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Téléphone</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.phone"
+                                                    type="tel"
+                                                    placeholder="+223 ..."
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Sujet</label
+                                                >
+                                                <select
+                                                    x-model="contactForm.subject"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                >
+                                                    <option value="">
+                                                        Choisir un sujet
+                                                    </option>
+                                                    <option value="devis">
+                                                        Demande de devis
+                                                    </option>
+                                                    <option value="info">
+                                                        Information générale
+                                                    </option>
+                                                    <option value="sav">
+                                                        Service après-vente
+                                                    </option>
+                                                    <option value="partenariat">
+                                                        Partenariat
+                                                    </option>
+                                                    <option value="autre">
+                                                        Autre
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Message</label
+                                            >
+                                            <textarea
+                                                x-model="contactForm.message"
+                                                rows="5"
+                                                placeholder="Décrivez votre projet ou votre demande..."
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors resize-none"
+                                            ></textarea>
+                                        </div>
+                                        <button
+                                            @click="submitContact()"
+                                            class="btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 px-8 py-3.5 rounded-lg cursor-pointer text-sm w-full sm:w-auto"
+                                        >
+                                            <i
+                                                class="fa-solid fa-paper-plane mr-2"
+                                            ></i
+                                            >Envoyer le message
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer
+            class="relative z-10 border-t border-sol-700/20 bg-sol-950/80 backdrop-blur-sm"
+        >
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center"
+                            >
+                                <i
+                                    class="fa-solid fa-sun text-sol-950 text-xs"
+                                ></i>
+                            </div>
+                            <span class="font-display font-700 text-base"
+                                >Solar<span class="text-grad">Nova</span></span
+                            >
+                        </div>
+                        <p class="text-sol-200/40 text-sm leading-relaxed mb-4">
+                            Votre partenaire de confiance pour la transition
+                            vers une énergie propre, renouvelable et durable.
+                        </p>
+                        <div class="flex gap-3">
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-facebook-f text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-instagram text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-linkedin-in text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-youtube text-sm"></i
+                            ></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Navigation
+                        </h4>
+                        <ul class="space-y-2.5">
+                            <template x-for="l in navLinks" :key="l.id">
+                                <li>
+                                    <a
+                                        @click.prevent="navigate(l.id)"
+                                        class="text-sol-200/40 text-sm hover:text-sol-300 transition-colors cursor-pointer"
+                                        x-text="l.label"
+                                    ></a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Solutions
+                        </h4>
+                        <ul class="space-y-2.5">
+                            <template x-for="s in solutions" :key="s.id">
+                                <li>
+                                    <a
+                                        @click.prevent="navigate('solutions')"
+                                        class="text-sol-200/40 text-sm hover:text-sol-300 transition-colors cursor-pointer"
+                                        x-text="s.name"
+                                    ></a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Newsletter
+                        </h4>
+                        <p class="text-sol-200/40 text-sm mb-3">
+                            Recevez nos derniers articles et offres spéciales.
+                        </p>
+                        <div class="flex gap-2">
+                            <input
+                                x-model="newsletterEmail"
+                                type="email"
+                                placeholder="votre@email.com"
+                                class="flex-1 bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors min-w-0"
+                            />
+                            <button
+                                @click="newsletterEmail&&showToast('Inscription confirmée !','success');newsletterEmail=''"
+                                class="btn-glow bg-sol-500 text-sol-950 px-4 rounded-lg cursor-pointer flex-shrink-0"
+                            >
+                                <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="mt-12 pt-6 border-t border-sol-700/15 flex flex-col sm:flex-row items-center justify-between gap-3"
+                >
+                    <p class="text-sol-200/25 text-xs">
+                        &copy; 2025 SolarNova. Tous droits réservés.
+                    </p>
+                    <div class="flex gap-4 text-sol-200/25 text-xs">
+                        <a href="#" class="hover:text-sol-300 transition-colors"
+                            >Mentions légales</a
+                        >
+                        <a href="#" class="hover:text-sol-300 transition-colors"
+                            >Politique de confidentialité</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- WhatsApp bouton flottant -->
+        <a
+            href="https://wa.me/22370000000?text=Bonjour%20SolarNova%2C%20je%20souhaite%20des%20informations%20sur%20vos%20solutions%20solaires."
+            target="_blank"
+            rel="noopener"
+            class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-green-600 flex items-center justify-center shadow-lg shadow-green-900/40 hover:scale-110 hover:bg-green-500 transition-all"
+            aria-label="Contact WhatsApp"
+        >
+            <i class="fa-brands fa-whatsapp text-white text-2xl"></i>
+        </a>
+
+        <!-- Toast -->
+        <div
+            x-show="toast.show"
+            x-transition:enter="toast-enter"
+            x-transition:leave="toast-leave"
+            class="fixed top-24 right-4 z-[60] max-w-sm"
+            :class="toast.type==='success'?'':'bg-red-900/90 border-red-500/30'"
+        >
+            <div
+                class="glass rounded-xl px-5 py-3.5 flex items-center gap-3"
+                :class="toast.type==='success'?'border-sol-500/30':'border-red-500/30'"
+            >
+                <i
+                    :class="toast.type==='success'?'fa-solid fa-circle-check text-sol-400':'fa-solid fa-circle-exclamation text-red-400'"
+                    class="text-lg"
+                ></i>
+                <span class="text-sm" x-text="toast.message"></span>
+            </div>
+        </div>
+
+        <script>
+            function app() {
+                return {
+                    // État navigation
+                    page: "home",
+                    pageLeaving: false,
+                    mobileMenu: false,
+                    scrolled: false,
+                    newsletterEmail: "",
+
+                    // État blog
+                    blogArticle: null,
+
+                    // Filtres
+                    solutionFilter: "all",
+                    appCategory: "all",
+                    reviewFilter: "all",
+
+                    // Calculateur
+                    selectedAppliances: [],
+                    showCustomForm: false,
+                    customApp: { name: "", watts: null, qty: 1, hours: 4 },
+
+                    // Formulaires
+                    reviewForm: {
+                        name: "",
+                        solution: "",
+                        rating: 0,
+                        comment: "",
+                    },
+                    contactForm: {
+                        name: "",
+                        email: "",
+                        phone: "",
+                        subject: "",
+                        message: "",
+                    },
+                    contactSent: false,
+
+                    // Toast
+                    toast: { show: false, message: "", type: "success" },
+
+                    // Stats animées
+                    displayStats: { projects: 0, clients: 0, kw: 0, years: 0 },
+                    statsData: [
+                        {
+                            key: "projects",
+                            label: "Projets réalisés",
+                            suffix: "+",
+                            target: 450,
+                        },
+                        {
+                            key: "clients",
+                            label: "Clients satisfaits",
+                            suffix: "+",
+                            target: 320,
+                        },
+                        {
+                            key: "kw",
+                            label: "kWc installés",
+                            suffix: "",
+                            target: 850,
+                        },
+                        {
+                            key: "years",
+                            label: "Années d'expérience",
+                            suffix: "+",
+                            target: 8,
+                        },
+                    ],
+
+                    // Navigation
+                    navLinks: [
+                        { id: "home", label: "Accueil" },
+                        { id: "solutions", label: "Solutions" },
+                        { id: "calculateur", label: "Calculateur" },
+                        { id: "blog", label: "Blog" },
+                        { id: "avis", label: "Avis" },
+                        { id: "apropos", label: "À Propos" },
+                        { id: "contact", label: "Contact" },
+                    ],
+
+                    // Features
+                    features: [
+                        {
+                            icon: "fa-solid fa-certificate",
+                            title: "Expertise Certifiée",
+                            desc: "Nos techniciens sont formés et certifiés par les principaux fabricants d'équipements solaires.",
+                        },
+                        {
+                            icon: "fa-solid fa-microchip",
+                            title: "Matériel Premium",
+                            desc: "Nous sélectionnons rigoureusement des panneaux, batteries et onduleurs des meilleures marques mondiales.",
+                        },
+                        {
+                            icon: "fa-solid fa-wrench",
+                            title: "Installation Pro",
+                            desc: "Chaque installation respecte les normes internationales avec des tests complets avant mise en service.",
+                        },
+                        {
+                            icon: "fa-solid fa-headset",
+                            title: "SAV Réactif",
+                            desc: "Notre équipe de support intervient rapidement en cas de besoin. Maintenance préventive incluse.",
+                        },
+                        {
+                            icon: "fa-solid fa-calculator",
+                            title: "Devis Gratuit",
+                            desc: "Obtenez une estimation détaillée et personnalisée sans aucun engagement de votre part.",
+                        },
+                        {
+                            icon: "fa-solid fa-shield-halved",
+                            title: "Garantie Étendue",
+                            desc: "Jusqu'à 25 ans de garantie sur les panneaux et 5 ans sur l'ensemble de l'installation.",
+                        },
+                    ],
+
+                    // Catégories d'appareils
+                    applianceCategories: [
+                        { id: "eclairage", label: "Éclairage" },
+                        { id: "cuisine", label: "Cuisine" },
+                        { id: "divertissement", label: "Divertissement" },
+                        { id: "confort", label: "Confort" },
+                        { id: "bureau", label: "Bureau" },
+                        { id: "entretien", label: "Entretien" },
+                        { id: "utilitaire", label: "Utilitaire" },
+                    ],
+
+                    // Appareils avec consommation
+                    appliances: [
+                        {
+                            id: 1,
+                            name: "Ampoule LED",
+                            icon: "fa-solid fa-lightbulb",
+                            watts: 10,
+                            category: "eclairage",
+                        },
+                        {
+                            id: 2,
+                            name: "Tube néon LED",
+                            icon: "fa-solid fa-lightbulb",
+                            watts: 18,
+                            category: "eclairage",
+                        },
+                        {
+                            id: 3,
+                            name: "Spot extérieur LED",
+                            icon: "fa-solid fa-lightbulb",
+                            watts: 15,
+                            category: "eclairage",
+                        },
+                        {
+                            id: 4,
+                            name: "Réfrigérateur",
+                            icon: "fa-solid fa-temperature-low",
+                            watts: 150,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 5,
+                            name: "Cuisinière électrique",
+                            icon: "fa-solid fa-fire-burner",
+                            watts: 1000,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 6,
+                            name: "Rice Cooker",
+                            icon: "fa-solid fa-bowl-rice",
+                            watts: 400,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 7,
+                            name: "Micro-ondes",
+                            icon: "fa-solid fa-wave-square",
+                            watts: 800,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 8,
+                            name: "Mixeur / Blender",
+                            icon: "fa-solid fa-blender",
+                            watts: 350,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 9,
+                            name: "Bouilloire",
+                            icon: "fa-solid fa-mug-hot",
+                            watts: 1500,
+                            category: "cuisine",
+                        },
+                        {
+                            id: 10,
+                            name: 'TV LED 32"',
+                            icon: "fa-solid fa-tv",
+                            watts: 80,
+                            category: "divertissement",
+                        },
+                        {
+                            id: 11,
+                            name: 'TV LED 55"',
+                            icon: "fa-solid fa-tv",
+                            watts: 120,
+                            category: "divertissement",
+                        },
+                        {
+                            id: 12,
+                            name: "Décodeur TV",
+                            icon: "fa-solid fa-satellite-dish",
+                            watts: 25,
+                            category: "divertissement",
+                        },
+                        {
+                            id: 13,
+                            name: "Radio / Récepteur",
+                            icon: "fa-solid fa-radio",
+                            watts: 20,
+                            category: "divertissement",
+                        },
+                        {
+                            id: 14,
+                            name: "Chargeur téléphone",
+                            icon: "fa-solid fa-mobile-screen",
+                            watts: 15,
+                            category: "divertissement",
+                        },
+                        {
+                            id: 15,
+                            name: "Ventilateur",
+                            icon: "fa-solid fa-fan",
+                            watts: 65,
+                            category: "confort",
+                        },
+                        {
+                            id: 16,
+                            name: "Climatiseur 1.5 CV",
+                            icon: "fa-solid fa-snowflake",
+                            watts: 1500,
+                            category: "confort",
+                        },
+                        {
+                            id: 17,
+                            name: "Chauffe-eau",
+                            icon: "fa-solid fa-shower",
+                            watts: 2000,
+                            category: "confort",
+                        },
+                        {
+                            id: 18,
+                            name: "Ordinateur portable",
+                            icon: "fa-solid fa-laptop",
+                            watts: 60,
+                            category: "bureau",
+                        },
+                        {
+                            id: 19,
+                            name: "Ordinateur de bureau",
+                            icon: "fa-solid fa-desktop",
+                            watts: 250,
+                            category: "bureau",
+                        },
+                        {
+                            id: 20,
+                            name: "Imprimante",
+                            icon: "fa-solid fa-print",
+                            watts: 50,
+                            category: "bureau",
+                        },
+                        {
+                            id: 21,
+                            name: "Routeur WiFi",
+                            icon: "fa-solid fa-wifi",
+                            watts: 12,
+                            category: "bureau",
+                        },
+                        {
+                            id: 22,
+                            name: "Machine à laver",
+                            icon: "fa-solid fa-shirt",
+                            watts: 800,
+                            category: "entretien",
+                        },
+                        {
+                            id: 23,
+                            name: "Fer à repasser",
+                            icon: "fa-solid fa-temperature-high",
+                            watts: 1200,
+                            category: "entretien",
+                        },
+                        {
+                            id: 24,
+                            name: "Sèche-cheveux",
+                            icon: "fa-solid fa-wind",
+                            watts: 1500,
+                            category: "entretien",
+                        },
+                        {
+                            id: 25,
+                            name: "Pompe à eau",
+                            icon: "fa-solid fa-faucet-drip",
+                            watts: 750,
+                            category: "utilitaire",
+                        },
+                        {
+                            id: 26,
+                            name: "Outil électrique",
+                            icon: "fa-solid fa-screwdriver-wrench",
+                            watts: 500,
+                            category: "utilitaire",
+                        },
+                        {
+                            id: 27,
+                            name: "Alarme sécurité",
+                            icon: "fa-solid fa-bell",
+                            watts: 10,
+                            category: "utilitaire",
+                        },
+                        {
+                            id: 28,
+                            name: "Caméra surveillance",
+                            icon: "fa-solid fa-video",
+                            watts: 15,
+                            category: "utilitaire",
+                        },
+                    ],
+
+                    // Solutions
+                    solutions: [
+                        {
+                            id: 1,
+                            name: "Kit Éclairage Basic",
+                            tier: "basic",
+                            subtitle: "Éclairage et charges légères",
+                            maxWatts: 150,
+                            maxDailyWh: 600,
+                            components: [
+                                "Panneau solaire 100W monocristallin",
+                                "Régulateur de charge MPPT 10A",
+                                "Batterie gel 12V 45Ah",
+                                "Convertisseur 300W pur sinus",
+                                "Câblage et protections électriques",
+                                "Installation professionnelle comprise",
+                            ],
+                            priceRange: "150 000 - 250 000 FCFA",
+                            icon: "fa-solid fa-lightbulb",
+                            color: "from-green-600 to-green-800",
+                        },
+                        {
+                            id: 2,
+                            name: "Kit Résidentiel Standard",
+                            tier: "standard",
+                            subtitle: "Ménage avec électroménager léger",
+                            maxWatts: 500,
+                            maxDailyWh: 2500,
+                            components: [
+                                "2× Panneaux solaires 200W monocristallin",
+                                "Régulateur MPPT 20A",
+                                "Batterie gel 12V 100Ah ×2",
+                                "Convertisseur 800W pur sinus",
+                                "Tableau électrique DC/AC",
+                                "Câblage complet et installation",
+                            ],
+                            priceRange: "450 000 - 700 000 FCFA",
+                            icon: "fa-solid fa-house",
+                            color: "from-emerald-600 to-teal-800",
+                        },
+                        {
+                            id: 3,
+                            name: "Kit Résidentiel Premium",
+                            tier: "premium",
+                            subtitle: "Confort complet sans compromis",
+                            maxWatts: 1200,
+                            maxDailyWh: 5000,
+                            components: [
+                                "4× Panneaux solaires 300W monocristallin",
+                                "Régulateur MPPT 40A",
+                                "Batterie lithium 48V 100Ah",
+                                "Convertisseur 3000W pur sinus",
+                                "Système de monitoring intelligent",
+                                "Tableau électrique complet",
+                                "Installation et mise en service",
+                            ],
+                            priceRange: "1 200 000 - 1 800 000 FCFA",
+                            icon: "fa-solid fa-house-chimney",
+                            color: "from-teal-600 to-cyan-800",
+                        },
+                        {
+                            id: 4,
+                            name: "Kit Professionnel",
+                            tier: "pro",
+                            subtitle: "Bureaux, commerces et PME",
+                            maxWatts: 2500,
+                            maxDailyWh: 10000,
+                            components: [
+                                "8× Panneaux solaires 400W monocristallin",
+                                "Régulateur MPPT 60A",
+                                "Batterie lithium 48V 200Ah",
+                                "Convertisseur 5000W pur sinus",
+                                "Monitoring à distance",
+                                "Protection surtensions",
+                                "Installation certifiée",
+                            ],
+                            priceRange: "2 500 000 - 4 000 000 FCFA",
+                            icon: "fa-solid fa-building",
+                            color: "from-cyan-600 to-blue-800",
+                        },
+                        {
+                            id: 5,
+                            name: "Kit Industriel",
+                            tier: "industriel",
+                            subtitle: "Grands besoins énergétiques",
+                            maxWatts: 5000,
+                            maxDailyWh: 20000,
+                            components: [
+                                "16× Panneaux solaires 550W monocristallin",
+                                "Régulateurs MPPT 80A ×2",
+                                "Batterie lithium 48V 400Ah",
+                                "Onduleur hybride 8kW",
+                                "Système de gestion énergétique",
+                                "Monitoring en temps réel",
+                                "Installation clé en main",
+                            ],
+                            priceRange: "Sur devis",
+                            icon: "fa-solid fa-industry",
+                            color: "from-amber-600 to-orange-800",
+                        },
+                    ],
+
+                    // Articles blog
+                    articles: [
+                        {
+                            id: 1,
+                            category: "Guide",
+                            date: "15 Janvier 2025",
+                            readTime: "6 min de lecture",
+                            image: "https://picsum.photos/seed/solar-panels-guide/800/400.jpg",
+                            title: "Comprendre le Fonctionnement des Panneaux Solaires : Le Guide Complet",
+                            excerpt:
+                                "Découvrez comment les cellules photovoltaïques transforment la lumière du soleil en électricité utilisable, et ce qui différencie les différents types de panneaux.",
+                            content: `<p>Les panneaux solaires photovoltaïques fonctionnent grâce à l'effet photovoltaïque, un phénomène physique découvert en 1839 par Alexandre Edmond Becquerel. Lorsque les photons de la lumière frappent les cellules de silicium, ils transfèrent leur énergie aux électrons du matériau, créant ainsi un courant électrique.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Les types de panneaux</h3>
+        <p>Il existe trois grandes familles de panneaux solaires. Les <strong class="text-sol-300">monocristallins</strong>, reconnaissables à leurs cellules noires uniformes, offrent le meilleur rendement (18-22%). Les <strong class="text-sol-300">polycristallins</strong>, aux cellules bleues avec des motifs visibles, sont légèrement moins performants mais plus abordables. Enfin, les <strong class="text-sol-300">panneaux à couche mince</strong> (amorphes) sont flexibles et adaptés à des surfaces irrégulières, mais leur rendement reste inférieur.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Le rôle du régulateur et de l'onduleur</h3>
+        <p>Le courant produit par les panneaux est continu (DC). Le régulateur de charge contrôle ce flux pour protéger les batteries de la surcharge et de la décharge profonde. L'onduleur, quant à lui, convertit le courant continu en courant alternatif (AC) compatible avec vos appareils ménagers. Les onduleurs "pur sinus" sont recommandés car ils produisent un courant de qualité identique à celui du réseau.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Le stockage : batteries gel vs lithium</h3>
+        <p>Les batteries gel sont économiques et fiables pour des usages modérés, avec une durée de vie de 3 à 5 ans. Les batteries lithium, plus coûteuses, offrent une durée de vie de 10 à 15 ans, supportent plus de cycles de charge/décharge et sont plus légères. Pour les installations résidentielles modernes, le lithium devient le choix privilégié malgré un investissement initial plus élevé.</p>`,
+                        },
+                        {
+                            id: 2,
+                            category: "Conseils",
+                            date: "28 Décembre 2024",
+                            readTime: "5 min de lecture",
+                            image: "https://picsum.photos/seed/energy-saving-tips/800/400.jpg",
+                            title: "5 Astuces Concrètes pour Réduire Votre Consommation Énergétique",
+                            excerpt:
+                                "Avant d'investir dans le solaire, optimisez votre consommation. Voici cinq stratégies éprouvées pour diminuer vos besoins sans sacrifier votre confort.",
+                            content: `<p>Réduire sa consommation énergétique n'est pas un sacrifice — c'est une optimisation intelligente. Chaque watt économisé est un watt que vous n'avez pas besoin de produire, ce qui réduit directement la taille et le coût de votre installation solaire.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">1. Passez au tout LED</h3>
+        <p>Remplacer toutes vos ampoules par des LED peut réduire votre consommation d'éclairage de 70 à 80%. Une ampoule LED de 10W produit autant de lumière qu'une ampoule à incandescence de 60W. Pour un ménage moyen, cela représente une économie de 200 à 400 Wh par jour.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">2. Choisissez des appareils économes</h3>
+        <p>Lors de l'achat d'un réfrigérateur, d'un climatiseur ou d'une machine à laver, vérifiez l'étiquette énergétique. Un réfrigérateur de classe A+ consomme moitié moins qu'un modèle standard. Sur 10 ans, la différence de consommation peut représenter le prix de l'appareil lui-même.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">3. Gérez intelligemment vos usages</h3>
+        <p>Programmez vos appareils énergivores (machine à laver, bouilloire) pendant les heures de pointe solaire (10h-15h). Utilisez des multiprises avec interrupteur pour couper complètement les appareils en veille, qui consomment jusqu'à 10% de votre électricité totale.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">4. Optimisez l'isolation thermique</h3>
+        <p>Un bâtiment bien isolé réduit drastiquement les besoins en climatisation et chauffage. Des rideaux épais, des joints de porte, et si possible une isolation des murs et toiture peuvent réduire votre facture de climatisation de 30 à 50%.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">5. Suivez votre consommation</h3>
+        <p>Installez un wattmètre ou un système de monitoring pour identifier les appareils les plus gourmands. La prise de conscience est le premier pas vers l'optimisation. Nos kits Premium et Professionnels incluent un système de monitoring en temps réel.</p>`,
+                        },
+                        {
+                            id: 3,
+                            category: "Actualité",
+                            date: "10 Décembre 2024",
+                            readTime: "7 min de lecture",
+                            image: "https://picsum.photos/seed/solar-africa-future/800/400.jpg",
+                            title: "L'Avenir de l'Énergie Solaire en Afrique : Opportunités et Défis",
+                            excerpt:
+                                "Le continent africain possède le plus grand potentiel solaire au monde. Pourtant, des centaines de millions de personnes n'ont toujours pas accès à l'électricité.",
+                            content: `<p>L'Afrique reçoit en moyenne 325 jours de soleil par an, avec un ensoleillement pouvant atteindre 2 200 kWh/m² dans le Sahel. Ce potentiel colossal fait du solaire la solution la plus prometteuse pour combler le déficit énergétique du continent, où plus de 600 millions de personnes n'ont toujours pas accès à l'électricité.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Le solaire décentralisé : une révolution en marche</h3>
+        <p>Contrairement au modèle classique des grandes centrales, l'Afrique embrace le solaire décentralisé — des kits résidentiels autonomes aux mini-réseaux (mini-grids) alimentant des villages entiers. Ce modèle évite les coûts prohibitifs d'extension du réseau national et offre une mise en œuvre rapide. Au Mali, au Sénégal et au Nigeria, des milliers de foyers ont déjà fait le choix du solaire hors-réseau.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">La baisse des coûts change la donne</h3>
+        <p>Le coût des panneaux solaires a chuté de plus de 90% en 15 ans. Combiné à la baisse des prix des batteries lithium, le solaire est devenu compétitif — et souvent moins cher — que les générateurs diesel, sans compter les coûts de carburant et de maintenance. Pour un ménage africain dépensant 15 000 à 30 000 FCFA par mois en carburant, un kit solaire se rentabilise en 2 à 4 ans.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Les défis restants</h3>
+        <p>Malgré ce potentiel, des obstacles persistent : le manque de financement accessible, les taxes parfois élevées sur les équipements importés, le besoin de formation technique locale, et la nécessité de cadres réglementaires adaptés. Cependant, les gouvernements africains prennent conscience de l'enjeu et multiplient les initiatives pour faciliter l'accès au solaire.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">SolarNova : acteur de cette transition</h3>
+        <p>Chez SolarNova, nous nous positionnons comme un acteur concret de cette transformation. Chaque installation que nous réalisons est une contribution directe à l'électrification de notre région, un ménage de plus libéré de la dépendance au réseau ou au carburant, un pas de plus vers un avenir énergétique souverain et durable.</p>`,
+                        },
+                        {
+                            id: 4,
+                            category: "Guide",
+                            date: "25 Novembre 2024",
+                            readTime: "8 min de lecture",
+                            image: "https://picsum.photos/seed/choose-solar-kit/800/400.jpg",
+                            title: "Comment Choisir le Kit Solaire Adapté à Vos Besoins Réels",
+                            excerpt:
+                                "Taille de panneaux, capacité batterie, puissance d'onduleur... Découvrez la méthode pas-à-pas pour dimensionner votre installation solaire.",
+                            content: `<p>Le dimensionnement d'une installation solaire est l'étape la plus critique. Trop petit, le système ne couvrira pas vos besoins. Trop grand, vous payerez pour une capacité inutilisée. Voici la méthode professionnelle que nous appliquons chez SolarNova pour chaque projet.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Étape 1 : Inventaire de vos appareils</h3>
+        <p>Listez tous les appareils que vous souhaitez alimenter, avec leur puissance en Watts et leur durée d'utilisation quotidienne en heures. Multipliez la puissance par le nombre d'heures pour obtenir la consommation en Wattheures (Wh) par jour. C'est exactement ce que fait notre <strong class="text-sol-300">calculateur d'énergie</strong> pour vous.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Étape 2 : Déterminer la puissance crête</h3>
+        <p>La somme des puissances de tous les appareils susceptibles de fonctionner simultanément détermine la puissance minimale de votre onduleur. Ajoutez une marge de sécurité de 20 à 30% pour les pics de démarrage (notamment pour les réfrigérateurs et pompes).</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Étape 3 : Dimensionner les batteries</h3>
+        <p>Pour 2 jours d'autonomie (recommandé), multipliez votre consommation journalière par 2, puis divisez par la tension du système (12V, 24V ou 48V) pour obtenir la capacité en Ampères-heures (Ah). Pour un système 48V avec 5000 Wh/jour : (5000 × 2) / 48 = 208 Ah minimum.</p>
+        <h3 class="font-display font-700 text-xl text-sol-200 mt-6 mb-3">Étape 4 : Calculer le nombre de panneaux</h3>
+        <p>Divisez votre consommation journalière par le nombre d'heures d'ensoleillement efficace (environ 5h au Mali) et par le rendement du système (environ 0.75 pour tenir compte des pertes). Pour 5000 Wh/jour : 5000 / (5 × 0.75) = 1333 Wc, soit environ 4 panneaux de 350W.</p>
+        <p class="mt-6"><strong class="text-sol-300">Notre conseil :</strong> utilisez notre calculateur pour une première estimation, puis contactez-nous pour une étude détaillée et personnalisée, gratuite et sans engagement.</p>`,
+                        },
+                    ],
+
+                    // Avis clients
+                    reviews: [
+                        {
+                            name: "Amadou Diallo",
+                            solution: "Kit Résidentiel Standard",
+                            rating: 5,
+                            comment:
+                                "Installation impeccable réalisée en une journée. L'équipe est professionnelle et a pris le temps d'expliquer le fonctionnement du système. Depuis 6 mois, tout fonctionne parfaitement. Mon réfrigérateur tourne 24h/24 sans problème.",
+                            date: "15 Nov. 2024",
+                        },
+                        {
+                            name: "Fatoumata Koné",
+                            solution: "Kit Éclairage Basic",
+                            rating: 4,
+                            comment:
+                                "Très satisfaite de ce kit d'éclairage. Toute la maison est éclairée, les enfants peuvent étudier le soir. Le seul petit bémol c'est que je ne peux pas alimenter mon téléviseur avec, mais pour le prix c'est un excellent rapport qualité-prix.",
+                            date: "22 Oct. 2024",
+                        },
+                        {
+                            name: "Ibrahim Touré",
+                            solution: "Kit Professionnel",
+                            rating: 5,
+                            comment:
+                                "Solution parfaite pour mon cybercafé. J'ai 15 ordinateurs, un serveur, des routeurs et l'éclairage — tout fonctionne grâce au kit professionnel. La monitoring à distance est un plus énorme, je peux vérifier la production depuis mon téléphone.",
+                            date: "01 Déc. 2024",
+                        },
+                        {
+                            name: "Mariam Coulibaly",
+                            solution: "Kit Résidentiel Premium",
+                            rating: 5,
+                            comment:
+                                "Depuis l'installation du kit premium, nous avons quasiment oublié les coupures. Le climatiseur, la machine à laver, le réfrigérateur, tout tourne sans souci. Le système de monitoring est très intuitif. Investissement que je ne regrette absolument pas.",
+                            date: "30 Sep. 2024",
+                        },
+                        {
+                            name: "Oumar Sidibé",
+                            solution: "Kit Résidentiel Standard",
+                            rating: 4,
+                            comment:
+                                "Bon rapport qualité-prix. L'installation a été faite proprement. Petit souci avec le régulateur au bout de 3 mois, mais le SAV est intervenu sous 48h et a remplacé la pièce sous garantie. C'est rassurant.",
+                            date: "18 Août 2024",
+                        },
+                        {
+                            name: "Aïssata Traoré",
+                            solution: "Kit Éclairage Basic",
+                            rating: 5,
+                            comment:
+                                "J'ai offert ce kit à ma mère au village. Elle est ravie ! Plus besoin de lampes à pétrole, la maison est bien éclairée et les téléphones se chargent. Un vrai changement de vie pour pas grand-chose.",
+                            date: "05 Juil. 2024",
+                        },
+                    ],
+
+                    // --- Computed ---
+                    get filteredAppliances() {
+                        if (this.appCategory === "all") return this.appliances;
+                        return this.appliances.filter(
+                            (a) => a.category === this.appCategory,
+                        );
+                    },
+                    get filteredSolutions() {
+                        if (this.solutionFilter === "all")
+                            return this.solutions;
+                        return this.solutions.filter(
+                            (s) => s.tier === this.solutionFilter,
+                        );
+                    },
+                    get filteredReviews() {
+                        if (this.reviewFilter === "all") return this.reviews;
+                        return this.reviews.filter(
+                            (r) => r.solution === this.reviewFilter,
+                        );
+                    },
+                    get totalPeakWatts() {
+                        return this.selectedAppliances.reduce(
+                            (s, a) => s + a.watts * a.qty,
+                            0,
+                        );
+                    },
+                    get totalDailyWh() {
+                        return this.selectedAppliances.reduce(
+                            (s, a) => s + a.watts * a.qty * a.hours,
+                            0,
+                        );
+                    },
+                    get totalMonthlyKWh() {
+                        return Math.round((this.totalDailyWh * 30) / 1000);
+                    },
+                    get consumptionPercent() {
+                        return Math.min((this.totalDailyWh / 20000) * 100, 100);
+                    },
+                    get suggestedKit() {
+                        if (!this.selectedAppliances.length) return null;
+                        const sorted = [...this.solutions].sort(
+                            (a, b) => a.maxDailyWh - b.maxDailyWh,
+                        );
+                        return (
+                            sorted.find(
+                                (s) =>
+                                    s.maxDailyWh >= this.totalDailyWh &&
+                                    s.maxWatts >= this.totalPeakWatts,
+                            ) || sorted[sorted.length - 1]
+                        );
+                    },
+                    get avgRating() {
+                        if (!this.reviews.length) return 0;
+                        return (
+                            this.reviews.reduce((s, r) => s + r.rating, 0) /
+                            this.reviews.length
+                        ).toFixed(1);
+                    },
+
+                    // --- Méthodes ---
+                    init() {
+                        this.page = location.hash.slice(1) || "home";
+                        window.addEventListener("hashchange", () => {
+                            this.page = location.hash.slice(1) || "home";
+                        });
+                        window.addEventListener("scroll", () => {
+                            this.scrolled = window.scrollY > 50;
+                        });
+                        // Préchargeur
+                        setTimeout(() => {
+                            document
+                                .getElementById("preloader")
+                                .classList.add("hide");
+                            setTimeout(
+                                () =>
+                                    document
+                                        .getElementById("preloader")
+                                        .remove(),
+                                600,
+                            );
+                        }, 800);
+                        // Particules
+                        this.initParticles();
+                        // Animation stats
+                        this.$nextTick(() => this.observeStats());
+                    },
+
+                    navigate(page) {
+                        if (this.page === page) return;
+                        this.pageLeaving = true;
+                        this.mobileMenu = false;
+                        this.blogArticle = null;
+                        setTimeout(() => {
+                            this.page = page;
+                            this.pageLeaving = false;
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                            history.pushState(null, "", "#" + page);
+                            if (page === "home")
+                                this.$nextTick(() => this.observeStats());
+                        }, 200);
+                    },
+
+                    observeStats() {
+                        const el = document.getElementById("stats-section");
+                        if (!el) return;
+                        const obs = new IntersectionObserver(
+                            (entries) => {
+                                if (entries[0].isIntersecting) {
+                                    this.animateCounters();
+                                    obs.disconnect();
+                                }
+                            },
+                            { threshold: 0.3 },
+                        );
+                        obs.observe(el);
+                    },
+
+                    animateCounters() {
+                        const duration = 2000;
+                        const start = Date.now();
+                        const targets = {
+                            projects: 450,
+                            clients: 320,
+                            kw: 850,
+                            years: 8,
+                        };
+                        const tick = () => {
+                            const p = Math.min(
+                                (Date.now() - start) / duration,
+                                1,
+                            );
+                            const e = 1 - Math.pow(1 - p, 3);
+                            this.displayStats = {
+                                projects: Math.round(targets.projects * e),
+                                clients: Math.round(targets.clients * e),
+                                kw: Math.round(targets.kw * e),
+                                years: Math.round(targets.years * e),
+                            };
+                            if (p < 1) requestAnimationFrame(tick);
+                        };
+                        this.displayStats = {
+                            projects: 0,
+                            clients: 0,
+                            kw: 0,
+                            years: 0,
+                        };
+                        tick();
+                    },
+
+                    isSelected(id) {
+                        return this.selectedAppliances.some((a) => a.id === id);
+                    },
+
+                    toggleAppliance(app) {
+                        if (this.isSelected(app.id)) {
+                            this.selectedAppliances =
+                                this.selectedAppliances.filter(
+                                    (a) => a.id !== app.id,
+                                );
+                        } else {
+                            this.selectedAppliances.push({
+                                id: app.id,
+                                name: app.name,
+                                icon: app.icon,
+                                watts: app.watts,
+                                qty: 1,
+                                hours: 4,
+                            });
+                        }
+                    },
+
+                    addCustomAppliance() {
+                        if (
+                            !this.customApp.name ||
+                            !this.customApp.watts ||
+                            this.customApp.watts <= 0
+                        ) {
+                            this.showToast(
+                                "Veuillez remplir le nom et la consommation en watts.",
+                                "error",
+                            );
+                            return;
+                        }
+                        this.selectedAppliances.push({
+                            id: Date.now(),
+                            name: this.customApp.name,
+                            icon: "fa-solid fa-plug",
+                            watts: Math.round(this.customApp.watts),
+                            qty: Math.max(1, this.customApp.qty || 1),
+                            hours: Math.max(0.5, this.customApp.hours || 1),
+                        });
+                        this.customApp = {
+                            name: "",
+                            watts: null,
+                            qty: 1,
+                            hours: 4,
+                        };
+                        this.showCustomForm = false;
+                        this.showToast(
+                            "Appareil ajouté avec succès.",
+                            "success",
+                        );
+                    },
+
+                    openArticle(article) {
+                        this.blogArticle = article;
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                    },
+
+                    submitReview() {
+                        const f = this.reviewForm;
+                        if (!f.name || !f.solution || !f.rating || !f.comment) {
+                            this.showToast(
+                                "Veuillez remplir tous les champs du formulaire.",
+                                "error",
+                            );
+                            return;
+                        }
+                        this.reviews.unshift({
+                            name: f.name,
+                            solution: f.solution,
+                            rating: f.rating,
+                            comment: f.comment,
+                            date: new Date().toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            }),
+                        });
+                        this.reviewForm = {
+                            name: "",
+                            solution: "",
+                            rating: 0,
+                            comment: "",
+                        };
+                        this.showToast(
+                            "Merci pour votre avis ! Il a été publié.",
+                            "success",
+                        );
+                    },
+
+                    submitContact() {
+                        const f = this.contactForm;
+                        if (!f.name || !f.email || !f.subject || !f.message) {
+                            this.showToast(
+                                "Veuillez remplir tous les champs obligatoires.",
+                                "error",
+                            );
+                            return;
+                        }
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+                            this.showToast(
+                                "Veuillez entrer une adresse email valide.",
+                                "error",
+                            );
+                            return;
+                        }
+                        this.contactSent = true;
+                        this.showToast(
+                            "Message envoyé avec succès !",
+                            "success",
+                        );
+                    },
+
+                    showToast(message, type) {
+                        this.toast = { show: true, message, type };
+                        setTimeout(() => {
+                            this.toast.show = false;
+                        }, 3500);
+                    },
+
+                    initParticles() {
+                        const canvas =
+                            document.getElementById("particles-canvas");
+                        if (!canvas) return;
+                        const ctx = canvas.getContext("2d");
+                        let particles = [];
+                        const resize = () => {
+                            canvas.width = window.innerWidth;
+                            canvas.height = window.innerHeight;
+                        };
+                        resize();
+                        window.addEventListener("resize", resize);
+                        // Créer des particules
+                        for (let i = 0; i < 45; i++) {
+                            particles.push({
+                                x: Math.random() * canvas.width,
+                                y: Math.random() * canvas.height,
+                                size: Math.random() * 1.8 + 0.4,
+                                vy: -(Math.random() * 0.25 + 0.08),
+                                vx: (Math.random() - 0.5) * 0.15,
+                                o: Math.random() * 0.35 + 0.05,
+                                pulse: Math.random() * Math.PI * 2,
+                            });
+                        }
+                        const animate = () => {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            particles.forEach((p) => {
+                                p.y += p.vy;
+                                p.x += p.vx;
+                                p.pulse += 0.02;
+                                if (p.y < -10) {
+                                    p.y = canvas.height + 10;
+                                    p.x = Math.random() * canvas.width;
+                                }
+                                if (p.x < -10) p.x = canvas.width + 10;
+                                if (p.x > canvas.width + 10) p.x = -10;
+                                const opacity =
+                                    p.o * (0.7 + 0.3 * Math.sin(p.pulse));
+                                ctx.beginPath();
+                                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                ctx.fillStyle = `rgba(0,179,74,${opacity})`;
+                                ctx.fill();
+                            });
+                            requestAnimationFrame(animate);
+                        };
+                        animate();
+                    },
+                };
+            }
+        </script>
+    </body>
+</html>

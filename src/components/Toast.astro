@@ -1,0 +1,18 @@
+        <div
+            x-show="toast.show"
+            x-transition:enter="toast-enter"
+            x-transition:leave="toast-leave"
+            class="fixed top-24 right-4 z-[60] max-w-sm"
+            :class="toast.type==='success'?'':'bg-red-900/90 border-red-500/30'"
+        >
+            <div
+                class="glass rounded-xl px-5 py-3.5 flex items-center gap-3"
+                :class="toast.type==='success'?'border-sol-500/30':'border-red-500/30'"
+            >
+                <i
+                    :class="toast.type==='success'?'fa-solid fa-circle-check text-sol-400':'fa-solid fa-circle-exclamation text-red-400'"
+                    class="text-lg"
+                ></i>
+                <span class="text-sm" x-text="toast.message"></span>
+            </div>
+        </div>

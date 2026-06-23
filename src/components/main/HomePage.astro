@@ -1,0 +1,413 @@
+            <div x-show="page==='home'" x-cloak>
+                <!-- Hero -->
+                <section
+                    class="relative min-h-screen flex items-center overflow-hidden pt-20"
+                >
+                    <!-- Blobs organiques -->
+                    <div
+                        class="blob-bg w-96 h-96 bg-sol-500 top-20 -left-48"
+                        style="position: absolute"
+                    ></div>
+                    <div
+                        class="blob-bg w-72 h-72 bg-gold-500 bottom-20 right-1/4"
+                        style="position: absolute"
+                    ></div>
+                    <!-- Soleil animé -->
+                    <div
+                        class="sun-container absolute right-[8%] top-1/2 -translate-y-1/2 w-[260px] h-[260px]"
+                        style="transform: translateY(-50%)"
+                    >
+                        <div class="sun-rays absolute inset-0">
+                            <template x-for="i in 12"
+                                ><div
+                                    class="sun-ray"
+                                    :style="'transform:rotate('+i*30+'deg)'"
+                                ></div
+                            ></template>
+                        </div>
+                        <div
+                            class="sun-core absolute top-1/2 left-1/2"
+                            style="transform: translate(-50%, -50%)"
+                        ></div>
+                    </div>
+                    <div
+                        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
+                    >
+                        <div class="max-w-2xl">
+                            <div
+                                class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-8"
+                            >
+                                <span
+                                    class="w-2 h-2 rounded-full bg-sol-400 animate-pulse"
+                                ></span>
+                                <span
+                                    class="text-xs font-medium text-sol-300 tracking-wide"
+                                    >Pionniers de l'énergie solaire depuis
+                                    2016</span
+                                >
+                            </div>
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl lg:text-7xl leading-[1.05] mb-6"
+                            >
+                                L'Énergie du<br /><span class="text-grad"
+                                    >Soleil</span
+                                >, à Votre Portée
+                            </h1>
+                            <p
+                                class="text-sol-200/60 text-lg sm:text-xl leading-relaxed mb-10 max-w-lg font-light"
+                            >
+                                Solutions solaires complètes — de la conception
+                                à l'installation. Alimentez votre maison, votre
+                                entreprise, votre avenir.
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <a
+                                    @click.prevent="navigate('calculateur')"
+                                    class="btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 px-8 py-4 rounded-full cursor-pointer text-sm tracking-wide inline-flex items-center gap-2"
+                                >
+                                    <i class="fa-solid fa-calculator"></i
+                                    >Calculer mes besoins
+                                </a>
+                                <a
+                                    @click.prevent="navigate('solutions')"
+                                    class="glass glass-hover font-display font-500 px-8 py-4 rounded-full cursor-pointer text-sm tracking-wide text-sol-200 inline-flex items-center gap-2"
+                                >
+                                    Voir nos solutions
+                                    <i
+                                        class="fa-solid fa-arrow-right text-xs"
+                                    ></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bande dégradé bas -->
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-sol-950 to-transparent"
+                    ></div>
+                </section>
+
+                <!-- Statistiques -->
+                <section id="stats-section" class="py-6 relative z-10">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="glass rounded-2xl p-6 sm:p-8 grid grid-cols-2 lg:grid-cols-4 gap-6"
+                        >
+                            <template x-for="s in statsData" :key="s.label">
+                                <div class="text-center">
+                                    <div
+                                        class="font-display font-800 text-3xl sm:text-4xl text-grad"
+                                        x-text="displayStats[s.key]+s.suffix"
+                                    ></div>
+                                    <div
+                                        class="text-sol-300/60 text-sm mt-1"
+                                        x-text="s.label"
+                                    ></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Pourquoi nous -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Nos Atouts</span
+                            >
+                            <h2
+                                class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                            >
+                                Pourquoi Choisir SolarNova
+                            </h2>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template x-for="f in features" :key="f.title">
+                                <div
+                                    class="glass glass-hover rounded-2xl p-7 group"
+                                >
+                                    <div
+                                        class="w-12 h-12 rounded-xl bg-sol-500/10 flex items-center justify-center mb-5 group-hover:bg-sol-500/20 transition-colors"
+                                    >
+                                        <i
+                                            :class="f.icon"
+                                            class="text-sol-400 text-lg"
+                                        ></i>
+                                    </div>
+                                    <h3
+                                        class="font-display font-700 text-lg mb-2"
+                                        x-text="f.title"
+                                    ></h3>
+                                    <p
+                                        class="text-sol-200/50 text-sm leading-relaxed"
+                                        x-text="f.desc"
+                                    ></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Aperçu solutions -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Nos Kits</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Solutions Clé en Main
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('solutions')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Toutes les solutions
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="s in solutions.slice(0,3)"
+                                :key="s.id"
+                            >
+                                <div
+                                    class="glass glass-hover rounded-2xl overflow-hidden cursor-pointer group"
+                                    @click="navigate('solutions')"
+                                >
+                                    <div
+                                        class="h-2 bg-gradient-to-r"
+                                        :class="s.color"
+                                    ></div>
+                                    <div class="p-6">
+                                        <div
+                                            class="flex items-center gap-3 mb-4"
+                                        >
+                                            <div
+                                                class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                            >
+                                                <i
+                                                    :class="s.icon"
+                                                    class="text-sol-400"
+                                                ></i>
+                                            </div>
+                                            <div>
+                                                <h3
+                                                    class="font-display font-700"
+                                                    x-text="s.name"
+                                                ></h3>
+                                                <p
+                                                    class="text-sol-300/50 text-xs"
+                                                    x-text="s.subtitle"
+                                                ></p>
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-sol-200/50 text-sm mb-4"
+                                            x-text="s.components.slice(0,3).join(' · ')"
+                                        ></p>
+                                        <div
+                                            class="flex items-center justify-between"
+                                        >
+                                            <span
+                                                class="text-sol-400 font-display font-600 text-sm"
+                                                x-text="s.priceRange"
+                                            ></span>
+                                            <i
+                                                class="fa-solid fa-arrow-right text-sol-500/50 group-hover:text-sol-400 group-hover:translate-x-1 transition-all text-sm"
+                                            ></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Avis preview -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Témoignages</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Ce Que Disent Nos Clients
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('avis')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Tous les avis
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="r in reviews.slice(0,3)"
+                                :key="r.name+r.date"
+                            >
+                                <div class="glass rounded-2xl p-6">
+                                    <div class="flex gap-1 mb-4">
+                                        <template x-for="i in 5"
+                                            ><i
+                                                :class="i<=r.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                class="text-sm"
+                                            ></i
+                                        ></template>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/60 text-sm leading-relaxed mb-4"
+                                        x-text="r.comment"
+                                    ></p>
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-9 h-9 rounded-full bg-sol-500/20 flex items-center justify-center font-display font-700 text-sol-400 text-sm"
+                                            x-text="r.name.split(' ').map(n=>n[0]).join('')"
+                                        ></div>
+                                        <div>
+                                            <div
+                                                class="text-sm font-medium"
+                                                x-text="r.name"
+                                            ></div>
+                                            <div
+                                                class="text-xs text-sol-300/40"
+                                                x-text="r.solution"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Blog preview -->
+                <section class="py-20 relative">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12"
+                        >
+                            <div>
+                                <span
+                                    class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                    >Blog</span
+                                >
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mt-3"
+                                >
+                                    Actualités & Conseils
+                                </h2>
+                            </div>
+                            <a
+                                @click.prevent="navigate('blog')"
+                                class="mt-4 sm:mt-0 text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-1.5"
+                            >
+                                Tous les articles
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                            <template
+                                x-for="a in articles.slice(0,3)"
+                                :key="a.id"
+                            >
+                                <div
+                                    class="glass glass-hover rounded-2xl overflow-hidden cursor-pointer group"
+                                    @click="navigate('blog');$nextTick(()=>openArticle(a))"
+                                >
+                                    <div class="h-44 overflow-hidden">
+                                        <img
+                                            :src="a.image"
+                                            :alt="a.title"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
+                                    <div class="p-5">
+                                        <div
+                                            class="flex items-center gap-3 mb-3"
+                                        >
+                                            <span
+                                                class="text-xs text-sol-500 font-medium bg-sol-500/10 px-2.5 py-1 rounded-full"
+                                                x-text="a.category"
+                                            ></span>
+                                            <span
+                                                class="text-xs text-sol-300/40"
+                                                x-text="a.date"
+                                            ></span>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-base mb-2 group-hover:text-sol-400 transition-colors line-clamp-2"
+                                            x-text="a.title"
+                                        ></h3>
+                                        <p
+                                            class="text-sol-200/45 text-sm line-clamp-2"
+                                            x-text="a.excerpt"
+                                        ></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CTA final -->
+                <section class="py-20 relative">
+                    <div
+                        class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+                    >
+                        <div
+                            class="glass rounded-3xl p-10 sm:p-16 relative overflow-hidden"
+                        >
+                            <div
+                                class="blob-bg w-64 h-64 bg-sol-500 -top-32 -right-32"
+                                style="position: absolute"
+                            ></div>
+                            <div
+                                class="blob-bg w-48 h-48 bg-gold-500 -bottom-24 -left-24"
+                                style="position: absolute"
+                            ></div>
+                            <div class="relative z-10">
+                                <h2
+                                    class="font-display font-800 text-3xl sm:text-4xl mb-4"
+                                >
+                                    Prêt à Passer au Solaire ?
+                                </h2>
+                                <p
+                                    class="text-sol-200/50 mb-8 max-w-lg mx-auto"
+                                >
+                                    Obtenez une estimation gratuite et
+                                    personnalisée en quelques minutes grâce à
+                                    notre calculateur intelligent.
+                                </p>
+                                <a
+                                    @click.prevent="navigate('calculateur')"
+                                    class="btn-glow bg-gradient-to-r from-sol-500 to-gold-500 text-sol-950 font-display font-700 px-10 py-4 rounded-full cursor-pointer text-sm tracking-wide inline-flex items-center gap-2"
+                                >
+                                    <i class="fa-solid fa-rocket"></i>Lancer le
+                                    Calcul
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== SOLUTIONS ==================== -->

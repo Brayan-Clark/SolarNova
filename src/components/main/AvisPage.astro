@@ -1,0 +1,256 @@
+---
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+            <div x-show="page==='avis'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Témoignages</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Avis de Nos Clients
+                            </h1>
+                            <p class="text-sol-200/50 max-w-xl mx-auto">
+                                Découvrez les retours d'expérience de ceux qui
+                                ont fait confiance à SolarNova pour leur
+                                transition énergétique.
+                            </p>
+                        </div>
+
+                        <!-- Stats avis -->
+                        <div
+                            class="glass rounded-2xl p-6 sm:p-8 mb-10 max-w-2xl mx-auto"
+                        >
+                            <div
+                                class="flex flex-col sm:flex-row items-center gap-8"
+                            >
+                                <div class="text-center">
+                                    <div
+                                        class="font-display font-900 text-5xl text-grad"
+                                        x-text="avgRating"
+                                    ></div>
+                                    <div
+                                        class="flex gap-0.5 mt-2 justify-center"
+                                    >
+                                        <template x-for="i in 5"
+                                            ><i
+                                                :class="i<=Math.round(avgRating)?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                class="text-sm"
+                                            ></i
+                                        ></template>
+                                    </div>
+                                    <div
+                                        class="text-sol-300/40 text-xs mt-1"
+                                        x-text="reviews.length+' avis'"
+                                    ></div>
+                                </div>
+                                <div class="flex-1 w-full space-y-2">
+                                    <template
+                                        x-for="star in [5,4,3,2,1]"
+                                        :key="star"
+                                    >
+                                        <div class="flex items-center gap-2">
+                                            <span
+                                                class="text-xs text-sol-300/50 w-3"
+                                                x-text="star"
+                                            ></span>
+                                            <i
+                                                class="fa-solid fa-star text-gold-500 text-xs"
+                                            ></i>
+                                            <div
+                                                class="flex-1 h-2 bg-sol-950/60 rounded-full overflow-hidden"
+                                            >
+                                                <div
+                                                    class="h-full bg-gold-500 rounded-full transition-all duration-500"
+                                                    :style="'width:'+(reviews.filter(r=>r.rating===star).length/reviews.length*100)+'%'"
+                                                ></div>
+                                            </div>
+                                            <span
+                                                class="text-xs text-sol-300/40 w-4 text-right"
+                                                x-text="reviews.filter(r=>r.rating===star).length"
+                                            ></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <!-- Formulaire -->
+                            <div class="lg:col-span-1">
+                                <div
+                                    class="glass rounded-2xl p-6 sticky top-24"
+                                >
+                                    <h3
+                                        class="font-display font-700 text-lg mb-5"
+                                    >
+                                        Laisser votre avis
+                                    </h3>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Votre nom</label
+                                            >
+                                            <input
+                                                x-model="reviewForm.name"
+                                                type="text"
+                                                placeholder="Jean Dupont"
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Solution achetée</label
+                                            >
+                                            <select
+                                                x-model="reviewForm.solution"
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                            >
+                                                <option value="">
+                                                    Choisir une solution
+                                                </option>
+                                                <template
+                                                    x-for="s in solutions"
+                                                    :key="s.id"
+                                                    ><option
+                                                        :value="s.name"
+                                                        x-text="s.name"
+                                                    ></option
+                                                ></template>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-2 block"
+                                                >Note</label
+                                            >
+                                            <div class="flex gap-1.5">
+                                                <template
+                                                    x-for="i in 5"
+                                                    :key="i"
+                                                >
+                                                    <i
+                                                        @click="reviewForm.rating=i"
+                                                        :class="i<=reviewForm.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-600'"
+                                                        class="star-btn text-xl"
+                                                    ></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Votre commentaire</label
+                                            >
+                                            <textarea
+                                                x-model="reviewForm.comment"
+                                                rows="4"
+                                                placeholder="Partagez votre expérience..."
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors resize-none"
+                                            ></textarea>
+                                        </div>
+                                        {
+                                            turnstileSiteKey && (
+                                                <div
+                                                    id="ts-review"
+                                                    class="cf-turnstile mb-4"
+                                                    data-sitekey={turnstileSiteKey}
+                                                    data-theme="dark"
+                                                />
+                                            )
+                                        }
+                                        <button
+                                            @click="submitReview()"
+                                            class="w-full btn-glow bg-sol-500 text-sol-950 font-display font-600 py-3 rounded-lg cursor-pointer text-sm"
+                                        >
+                                            <i
+                                                class="fa-solid fa-paper-plane mr-1.5"
+                                            ></i
+                                            >Publier l'avis
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Liste avis -->
+                            <div class="lg:col-span-2 space-y-4">
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <button
+                                        @click="reviewFilter='all'"
+                                        class="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                                        :class="reviewFilter==='all'?'bg-sol-500 text-sol-950':'glass text-sol-300/60'"
+                                    >
+                                        Tous
+                                    </button>
+                                    <template
+                                        x-for="s in solutions"
+                                        :key="s.id"
+                                    >
+                                        <button
+                                            @click="reviewFilter=s.name"
+                                            class="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+                                            :class="reviewFilter===s.name?'bg-sol-500 text-sol-950':'glass text-sol-300/60'"
+                                            x-text="s.name"
+                                        ></button>
+                                    </template>
+                                </div>
+                                <template
+                                    x-for="r in filteredReviews"
+                                    :key="r.name+r.date+r.comment"
+                                >
+                                    <div class="glass rounded-xl p-5">
+                                        <div
+                                            class="flex items-start justify-between mb-3"
+                                        >
+                                            <div
+                                                class="flex items-center gap-3"
+                                            >
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-sol-500/20 flex items-center justify-center font-display font-700 text-sol-400 text-sm"
+                                                    x-text="r.name.split(' ').map(n=>n[0]).join('')"
+                                                ></div>
+                                                <div>
+                                                    <div
+                                                        class="font-medium text-sm"
+                                                        x-text="r.name"
+                                                    ></div>
+                                                    <div
+                                                        class="text-xs text-sol-300/40"
+                                                        x-text="r.solution+' · '+r.date"
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-0.5">
+                                                <template x-for="i in 5"
+                                                    ><i
+                                                        :class="i<=r.rating?'fa-solid fa-star text-gold-500':'fa-regular fa-star text-sol-700'"
+                                                        class="text-xs"
+                                                    ></i
+                                                ></template>
+                                            </div>
+                                        </div>
+                                        <p
+                                            class="text-sol-200/55 text-sm leading-relaxed"
+                                            x-text="r.comment"
+                                        ></p>
+                                    </div>
+                                </template>
+                                <div
+                                    x-show="!filteredReviews.length"
+                                    class="text-center py-12 text-sol-300/30 text-sm"
+                                >
+                                    Aucun avis pour cette solution.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==================== À PROPOS ==================== -->

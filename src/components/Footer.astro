@@ -1,0 +1,117 @@
+        <footer
+            class="relative z-10 border-t border-sol-700/20 bg-sol-950/80 backdrop-blur-sm"
+        >
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                    <div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center"
+                            >
+                                <i
+                                    class="fa-solid fa-sun text-sol-950 text-xs"
+                                ></i>
+                            </div>
+                            <span class="font-display font-700 text-base"
+                                >Solar<span class="text-grad">Nova</span></span
+                            >
+                        </div>
+                        <p class="text-sol-200/40 text-sm leading-relaxed mb-4">
+                            Votre partenaire de confiance pour la transition
+                            vers une énergie propre, renouvelable et durable.
+                        </p>
+                        <div class="flex gap-3">
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-facebook-f text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-instagram text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-linkedin-in text-sm"></i
+                            ></a>
+                            <a
+                                href="#"
+                                class="w-9 h-9 rounded-lg glass flex items-center justify-center text-sol-300/50 hover:text-sol-400 hover:border-sol-500/30 transition-all"
+                                ><i class="fa-brands fa-youtube text-sm"></i
+                            ></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Navigation
+                        </h4>
+                        <ul class="space-y-2.5">
+                            <template x-for="l in navLinks" :key="l.id">
+                                <li>
+                                    <a
+                                        @click.prevent="navigate(l.id)"
+                                        class="text-sol-200/40 text-sm hover:text-sol-300 transition-colors cursor-pointer"
+                                        x-text="l.label"
+                                    ></a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Solutions
+                        </h4>
+                        <ul class="space-y-2.5">
+                            <template x-for="s in solutions" :key="s.id">
+                                <li>
+                                    <a
+                                        @click.prevent="navigate('solutions')"
+                                        class="text-sol-200/40 text-sm hover:text-sol-300 transition-colors cursor-pointer"
+                                        x-text="s.name"
+                                    ></a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-display font-700 text-sm mb-4">
+                            Newsletter
+                        </h4>
+                        <p class="text-sol-200/40 text-sm mb-3">
+                            Recevez nos derniers articles et offres spéciales.
+                        </p>
+                        <div class="flex gap-2">
+                            <input
+                                x-model="newsletterEmail"
+                                type="email"
+                                placeholder="votre@email.com"
+                                class="flex-1 bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors min-w-0"
+                            />
+                            <button
+                                @click="newsletterEmail&&showToast('Inscription confirmée !','success');newsletterEmail=''"
+                                class="btn-glow bg-sol-500 text-sol-950 px-4 rounded-lg cursor-pointer flex-shrink-0"
+                            >
+                                <i class="fa-solid fa-arrow-right text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="mt-12 pt-6 border-t border-sol-700/15 flex flex-col sm:flex-row items-center justify-between gap-3"
+                >
+                    <p class="text-sol-200/25 text-xs">
+                        &copy; 2025 SolarNova. Tous droits réservés.
+                    </p>
+                    <div class="flex gap-4 text-sol-200/25 text-xs">
+                        <a href="#" class="hover:text-sol-300 transition-colors"
+                            >Mentions légales</a
+                        >
+                        <a href="#" class="hover:text-sol-300 transition-colors"
+                            >Politique de confidentialité</a
+                        >
+                    </div>
+                </div>
+            </div>
+        </footer>

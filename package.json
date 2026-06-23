@@ -1,0 +1,22 @@
+{
+  "name": "solarnova",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "SolarNova — Solutions d'énergie solaire (Astro + Tailwind + Alpine + Supabase)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "alpinejs": "^3.14.1",
+    "astro": "^4.15.9"
+  },
+  "devDependencies": {
+    "@astrojs/tailwind": "^5.1.1",
+    "tailwindcss": "^3.4.13"
+  }
+}

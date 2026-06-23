@@ -1,0 +1,255 @@
+---
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+            <div x-show="page==='contact'" x-cloak>
+                <section class="pt-28 pb-20">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center mb-14">
+                            <span
+                                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                                >Contact</span
+                            >
+                            <h1
+                                class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-4"
+                            >
+                                Parlons de Votre Projet
+                            </h1>
+                            <p class="text-sol-200/50 max-w-xl mx-auto">
+                                Une question, un projet, un devis ? Nos experts
+                                sont à votre écoute pour vous accompagner.
+                            </p>
+                        </div>
+                        <div class="grid lg:grid-cols-3 gap-8">
+                            <!-- Infos contact -->
+                            <div class="space-y-4">
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-location-dot text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Adresse
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        Quartier Commerce, Rue 14<br />Bamako,
+                                        Mali
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-phone text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Téléphone
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        +223 70 00 00 00<br />+223 80 00 00 00
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-envelope text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Email
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        contact@solarnova.ml<br />devis@solarnova.ml
+                                    </p>
+                                </div>
+                                <div class="glass rounded-xl p-5 glass-hover">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div
+                                            class="w-10 h-10 rounded-lg bg-sol-500/10 flex items-center justify-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-clock text-sol-400"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-sm"
+                                        >
+                                            Horaires
+                                        </h3>
+                                    </div>
+                                    <p
+                                        class="text-sol-200/50 text-sm pl-[52px]"
+                                    >
+                                        Lun - Sam : 8h00 - 18h00<br />Dimanche :
+                                        Fermé
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Formulaire -->
+                            <div class="lg:col-span-2">
+                                <div class="glass rounded-2xl p-6 sm:p-8">
+                                    <div
+                                        x-show="contactSent"
+                                        class="text-center py-12"
+                                    >
+                                        <div
+                                            class="w-16 h-16 rounded-full bg-sol-500/20 flex items-center justify-center mx-auto mb-4"
+                                        >
+                                            <i
+                                                class="fa-solid fa-check text-sol-400 text-2xl"
+                                            ></i>
+                                        </div>
+                                        <h3
+                                            class="font-display font-700 text-xl mb-2"
+                                        >
+                                            Message Envoyé
+                                        </h3>
+                                        <p class="text-sol-200/50 text-sm mb-6">
+                                            Merci pour votre message. Notre
+                                            équipe vous répondra dans les plus
+                                            brefs délais.
+                                        </p>
+                                        <button
+                                            @click="contactSent=false;contactForm={name:'',email:'',phone:'',subject:'',message:''}"
+                                            class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300"
+                                        >
+                                            Envoyer un autre message
+                                        </button>
+                                    </div>
+                                    <div x-show="!contactSent">
+                                        <div
+                                            class="grid sm:grid-cols-2 gap-4 mb-4"
+                                        >
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Nom complet</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.name"
+                                                    type="text"
+                                                    placeholder="Votre nom"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Email</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.email"
+                                                    type="email"
+                                                    placeholder="votre@email.com"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="grid sm:grid-cols-2 gap-4 mb-4"
+                                        >
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Téléphone</label
+                                                >
+                                                <input
+                                                    x-model="contactForm.phone"
+                                                    type="tel"
+                                                    placeholder="+223 ..."
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="text-xs text-sol-300/50 mb-1 block"
+                                                    >Sujet</label
+                                                >
+                                                <select
+                                                    x-model="contactForm.subject"
+                                                    class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 transition-colors"
+                                                >
+                                                    <option value="">
+                                                        Choisir un sujet
+                                                    </option>
+                                                    <option value="devis">
+                                                        Demande de devis
+                                                    </option>
+                                                    <option value="info">
+                                                        Information générale
+                                                    </option>
+                                                    <option value="sav">
+                                                        Service après-vente
+                                                    </option>
+                                                    <option value="partenariat">
+                                                        Partenariat
+                                                    </option>
+                                                    <option value="autre">
+                                                        Autre
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-5">
+                                            <label
+                                                class="text-xs text-sol-300/50 mb-1 block"
+                                                >Message</label
+                                            >
+                                            <textarea
+                                                x-model="contactForm.message"
+                                                rows="5"
+                                                placeholder="Décrivez votre projet ou votre demande..."
+                                                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 placeholder-sol-700 focus:outline-none focus:border-sol-500/50 transition-colors resize-none"
+                                            ></textarea>
+                                        </div>
+                                        {
+                                            turnstileSiteKey && (
+                                                <div
+                                                    id="ts-contact"
+                                                    class="cf-turnstile mb-5"
+                                                    data-sitekey={turnstileSiteKey}
+                                                    data-theme="dark"
+                                                />
+                                            )
+                                        }
+                                        <button
+                                            @click="submitContact()"
+                                            class="btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 px-8 py-3.5 rounded-lg cursor-pointer text-sm w-full sm:w-auto"
+                                        >
+                                            <i
+                                                class="fa-solid fa-paper-plane mr-2"
+                                            ></i
+                                            >Envoyer le message
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
