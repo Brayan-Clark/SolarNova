@@ -52,6 +52,32 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+    <!-- Données structurées (référencement local) -->
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: "SolarNova",
+        description,
+        image: ogImage,
+        ...(canonical ? { url: canonical } : {}),
+        areaServed: "Madagascar",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Antananarivo",
+          addressCountry: "MG",
+        },
+        email: "contact@solarnova.mg",
+      })}
+    />
+
+    <!-- Préconnexion aux CDN (accélère le rendu des polices/icônes) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
