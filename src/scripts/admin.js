@@ -74,6 +74,8 @@ export function createAdminApp() {
     loginForm: { id: "", pass: "" },
     loginError: "",
     busy: false,
+    // Visibilité des champs mot de passe (afficher / masquer).
+    pwShow: { login: false, new: false, confirm: false },
 
     // --- Permissions ---
     permissions: [], // permissions de l'utilisateur courant

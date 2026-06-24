@@ -55,12 +55,23 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
           :autocomplete="isDevAuth ? 'username' : 'email'"
         />
         <label class="text-xs text-sol-300/50 mb-1 block">Mot de passe</label>
-        <input
-          type="password"
-          x-model="loginForm.pass"
-          class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 mb-4"
-          autocomplete="current-password"
-        />
+        <div class="relative mb-4">
+          <input
+            :type="pwShow.login ? 'text' : 'password'"
+            x-model="loginForm.pass"
+            class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 pr-10 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            @click="pwShow.login = !pwShow.login"
+            class="absolute inset-y-0 right-0 px-3 text-sol-300/50 hover:text-sol-300"
+            :title="pwShow.login ? 'Masquer' : 'Afficher'"
+            tabindex="-1"
+          >
+            <i class="fa-solid" :class="pwShow.login ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
         <p x-show="loginError" x-text="loginError" class="text-red-400 text-xs mb-4"></p>
         <button
           type="submit"
@@ -610,21 +621,43 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
           </p>
           <div class="mb-3">
             <label class="text-xs text-sol-300/50 mb-1 block">Nouveau mot de passe</label>
-            <input
-              type="password"
-              x-model="profileForm.password"
-              autocomplete="new-password"
-              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
-            />
+            <div class="relative">
+              <input
+                :type="pwShow.new ? 'text' : 'password'"
+                x-model="profileForm.password"
+                autocomplete="new-password"
+                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 pr-10 text-sm"
+              />
+              <button
+                type="button"
+                @click="pwShow.new = !pwShow.new"
+                class="absolute inset-y-0 right-0 px-3 text-sol-300/50 hover:text-sol-300"
+                :title="pwShow.new ? 'Masquer' : 'Afficher'"
+                tabindex="-1"
+              >
+                <i class="fa-solid" :class="pwShow.new ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
           </div>
           <div class="mb-4">
             <label class="text-xs text-sol-300/50 mb-1 block">Confirmer le mot de passe</label>
-            <input
-              type="password"
-              x-model="profileForm.password2"
-              autocomplete="new-password"
-              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
-            />
+            <div class="relative">
+              <input
+                :type="pwShow.confirm ? 'text' : 'password'"
+                x-model="profileForm.password2"
+                autocomplete="new-password"
+                class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 pr-10 text-sm"
+              />
+              <button
+                type="button"
+                @click="pwShow.confirm = !pwShow.confirm"
+                class="absolute inset-y-0 right-0 px-3 text-sol-300/50 hover:text-sol-300"
+                :title="pwShow.confirm ? 'Masquer' : 'Afficher'"
+                tabindex="-1"
+              >
+                <i class="fa-solid" :class="pwShow.confirm ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
           </div>
 
           <div

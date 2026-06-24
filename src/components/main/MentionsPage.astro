@@ -1,0 +1,92 @@
+<div x-show="page==='mentions'" x-cloak>
+    <section class="pt-28 pb-20">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <span
+                class="text-sol-500 font-display font-600 text-sm tracking-widest uppercase"
+                >Informations légales</span
+            >
+            <h1 class="font-display font-900 text-4xl sm:text-5xl mt-3 mb-8">
+                Mentions <span class="text-grad">légales</span>
+            </h1>
+
+            <div class="article-content space-y-6 text-sol-200/70">
+                <h2>1. Éditeur du site</h2>
+                <p>
+                    Le présent site <strong>SolarNova</strong> est édité par la
+                    société SolarNova, spécialisée dans la conception et
+                    l'installation de solutions d'énergie solaire à Madagascar.
+                </p>
+                <ul>
+                    <li><strong>Raison sociale :</strong> SolarNova</li>
+                    <li><strong>Siège social :</strong> Antananarivo, Madagascar</li>
+                    <li><strong>NIF / STAT :</strong> [à compléter]</li>
+                    <li><strong>Email :</strong> contact@solarnova.mg</li>
+                    <li><strong>Téléphone :</strong> [à compléter]</li>
+                    <li><strong>Directeur de la publication :</strong> [à compléter]</li>
+                </ul>
+
+                <h2>2. Hébergement</h2>
+                <p>
+                    Le site est hébergé via <strong>GitHub Pages</strong>
+                    (GitHub Inc., 88 Colin P. Kelly Jr. Street, San Francisco,
+                    CA 94107, États-Unis). Les données saisies dans les
+                    formulaires sont traitées par <strong>Supabase</strong>
+                    (hébergement de base de données).
+                </p>
+
+                <h2>3. Propriété intellectuelle</h2>
+                <p>
+                    L'ensemble des contenus présents sur ce site (textes,
+                    images, logos, graphismes, structure) est la propriété
+                    exclusive de SolarNova, sauf mention contraire. Toute
+                    reproduction, représentation, modification ou exploitation,
+                    totale ou partielle, sans autorisation écrite préalable est
+                    interdite et constitue une contrefaçon.
+                </p>
+
+                <h2>4. Responsabilité</h2>
+                <p>
+                    Les informations fournies sur ce site (notamment les
+                    estimations du calculateur solaire et les fourchettes de
+                    prix) le sont à titre indicatif et ne constituent pas un
+                    engagement contractuel. SolarNova s'efforce d'assurer
+                    l'exactitude des informations mais ne saurait être tenue
+                    responsable d'éventuelles erreurs ou omissions.
+                </p>
+
+                <h2>5. Liens externes</h2>
+                <p>
+                    Ce site peut contenir des liens vers des sites tiers.
+                    SolarNova n'exerce aucun contrôle sur ces sites et décline
+                    toute responsabilité quant à leur contenu.
+                </p>
+
+                <h2>6. Données personnelles</h2>
+                <p>
+                    Le traitement de vos données personnelles est détaillé dans
+                    notre
+                    <a
+                        @click.prevent="navigate('confidentialite')"
+                        class="cursor-pointer text-sol-400 hover:text-sol-300"
+                        >Politique de confidentialité</a
+                    >.
+                </p>
+
+                <h2>7. Contact</h2>
+                <p>
+                    Pour toute question relative au site, vous pouvez nous
+                    contacter via la
+                    <a
+                        @click.prevent="navigate('contact')"
+                        class="cursor-pointer text-sol-400 hover:text-sol-300"
+                        >page Contact</a
+                    >.
+                </p>
+
+                <p class="text-sol-200/40 text-sm pt-4">
+                    Dernière mise à jour : juin 2026.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>

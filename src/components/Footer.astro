@@ -114,10 +114,14 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
                         > 2025 SolarNova. Tous droits réservés.
                     </p>
                     <div class="flex gap-4 text-sol-200/25 text-xs">
-                        <a href="#" class="hover:text-sol-300 transition-colors"
+                        <a
+                            @click.prevent="navigate('mentions')"
+                            class="hover:text-sol-300 transition-colors cursor-pointer"
                             >Mentions légales</a
                         >
-                        <a href="#" class="hover:text-sol-300 transition-colors"
+                        <a
+                            @click.prevent="navigate('confidentialite')"
+                            class="hover:text-sol-300 transition-colors cursor-pointer"
                             >Politique de confidentialité</a
                         >
                     </div>
