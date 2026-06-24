@@ -1,3 +1,7 @@
+---
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
+---
         <footer
             class="relative z-10 border-t border-sol-700/20 bg-sol-950/80 backdrop-blur-sm"
         >
@@ -102,7 +106,12 @@
                     class="mt-12 pt-6 border-t border-sol-700/15 flex flex-col sm:flex-row items-center justify-between gap-3"
                 >
                     <p class="text-sol-200/25 text-xs">
-                        &copy; 2025 SolarNova. Tous droits réservés.
+                        <a
+                            href={`${base}admin`}
+                            class="cursor-default hover:text-sol-300 transition-colors"
+                            title="Administration"
+                            aria-label="Administration">&copy;</a
+                        > 2025 SolarNova. Tous droits réservés.
                     </p>
                     <div class="flex gap-4 text-sol-200/25 text-xs">
                         <a href="#" class="hover:text-sol-300 transition-colors"
