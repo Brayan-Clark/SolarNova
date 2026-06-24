@@ -607,10 +607,18 @@ export function createApp() {
 
         // Traite les formules LaTeX dans le contenu HTML
         renderMath(html) {
+            // Décoder les entités HTML avant traitement
+            const decodeHtml = (text) => {
+                const textarea = document.createElement('textarea');
+                textarea.innerHTML = text;
+                return textarea.value;
+            };
+
             // Remplacer les formules entre $$ (display math)
             html = html.replace(/\$\$([^$]+)\$\$/g, (match, formula) => {
                 try {
-                    return katex.renderToString(formula.trim(), {
+                    const decoded = decodeHtml(formula.trim());
+                    return katex.renderToString(decoded, {
                         displayMode: true,
                         throwOnError: false,
                     });
@@ -621,7 +629,8 @@ export function createApp() {
             // Remplacer les formules entre $ (inline math)
             html = html.replace(/\$([^$]+)\$/g, (match, formula) => {
                 try {
-                    return katex.renderToString(formula.trim(), {
+                    const decoded = decodeHtml(formula.trim());
+                    return katex.renderToString(decoded, {
                         displayMode: false,
                         throwOnError: false,
                     });
