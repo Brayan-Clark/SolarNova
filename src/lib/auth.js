@@ -40,19 +40,23 @@ export async function signIn(identifier, password) {
   return { ok: true, user: data.user };
 }
 
-// Connexion par lien magique (email, sans mot de passe).
-// Envoie un email contenant un lien qui ramène sur la page admin connecté.
-export async function sendMagicLink(email) {
+// Met à jour le profil de l'utilisateur CONNECTÉ (libre-service).
+// fields : { password?, displayName? } — au moins un des deux.
+export async function updateMyProfile({ password, displayName } = {}) {
+  if (AUTH_MODE === "dev") {
+    return { ok: false, error: "Indisponible en mode démo (local)." };
+  }
   const sb = await getSupabase();
   if (!sb) return { ok: false, error: "Client Supabase indisponible." };
-  const redirectTo =
-    typeof window !== "undefined" ? window.location.href.split("#")[0] : undefined;
-  const { error } = await sb.auth.signInWithOtp({
-    email: email.trim(),
-    options: { shouldCreateUser: true, emailRedirectTo: redirectTo },
-  });
+  const update = {};
+  if (password) update.password = password;
+  if (displayName !== undefined) update.data = { display_name: displayName };
+  if (!update.password && update.data === undefined) {
+    return { ok: false, error: "Rien à mettre à jour." };
+  }
+  const { data, error } = await sb.auth.updateUser(update);
   if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  return { ok: true, user: data.user };
 }
 
 export async function signOut() {

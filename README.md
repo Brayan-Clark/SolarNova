@@ -235,24 +235,33 @@ des avis**, et consultation des **demandes** (contacts + devis).
 | Situation | Connexion | Stockage des modifications |
 |-----------|-----------|----------------------------|
 | **Local** (Supabase non configuré) | identifiant de **développement** : `admin` / `solarnova` | `localStorage` du navigateur (démo) |
-| **Production** (Supabase configuré) | **lien magique par email** (passwordless) | base Supabase (réel, partagé) |
+| **Production** (Supabase configuré) | **email + mot de passe** | base Supabase (réel, partagé) |
 
 > 🔒 L'accès de développement est **volontairement inutilisable en production** :
-> dès que les clés Supabase sont présentes, seul le lien magique fonctionne.
+> dès que les clés Supabase sont présentes, seul un vrai compte Supabase fonctionne.
 > (Identifiants de dev modifiables dans `src/lib/auth.js`.)
 
-### Configurer le lien magique (indispensable)
-Supabase → **Authentication → URL Configuration** :
-- **Site URL** : `https://<utilisateur>.github.io/<dépôt>/admin`
-- **Redirect URLs** : la même URL + `http://localhost:4321/admin` (pour les tests).
+### Déployer la gestion des comptes (indispensable en prod)
+Créer un compte + générer son mot de passe se fait **côté serveur** (clé secrète
+jamais exposée au navigateur). Déploie **une fois** :
 
-> 📧 L'envoi d'emails intégré de Supabase est **plafonné** (quelques mails/heure
-> sur le plan gratuit). Pour la production, configure un **SMTP** (Authentication
-> → Emails) — ex. Resend, Brevo.
+```bash
+supabase functions deploy admin-users
+```
+
+(Recommandé) pour envoyer le mot de passe **par email** au nouvel utilisateur :
+
+```bash
+supabase secrets set RESEND_API_KEY=re_xxx
+supabase secrets set MAIL_FROM="SolarNova <onboarding@resend.dev>"
+```
+
+> Sans clé email, aucun blocage : le mot de passe généré s'**affiche une fois** au
+> super admin, qui le transmet manuellement.
 
 ### Créer le 1er super admin
-1. (Recommandé) Supabase → **Authentication → Users → Add user** : ajoute ton email (« Auto Confirm »).
-2. Va sur `…/admin`, entre cet email → reçois le lien → connecte-toi.
+1. Supabase → **Authentication → Users → Add user** : ajoute ton email + un mot de passe (« Auto Confirm »).
+2. Va sur `…/admin`, connecte-toi avec cet email + mot de passe.
 3. Au 1er login, tu deviens **super administrateur** automatiquement.
 
 > Les droits sont appliqués **côté base** par le RLS (`has_permission()`), pas
@@ -267,7 +276,7 @@ Le back-office gère des **rôles** et des **permissions** (onglets *Rôles & ac
 et *Utilisateurs*, visibles selon tes droits) :
 
 - **Le 1er utilisateur qui se connecte devient automatiquement *super administrateur*** (toutes les permissions). En local, l'utilisateur de dev est super admin d'office.
-- Le **super admin** peut créer des **rôles personnalisés** et leur cocher des permissions, puis **attribuer un rôle à un utilisateur** (par email).
+- Le **super admin** peut créer des **rôles personnalisés** et leur cocher des permissions, puis **créer des comptes** (email + rôle, mot de passe généré).
 - Permissions disponibles : `articles.manage`, `solutions.manage`, `reviews.moderate`, `leads.view`, `roles.manage`, `users.manage`.
 - Rôles système (non supprimables) : **Super administrateur** (`*`) et **Administrateur** (contenu + modération + demandes).
 
@@ -277,24 +286,24 @@ une RPC `claim_super_admin()`, et les politiques d'écriture vérifient la permi
 correspondante. Un utilisateur connecté **sans rôle** ne peut donc rien faire,
 même en contournant l'interface.
 
-> Flux en production : applique `schema.sql` → ajoute ton email dans Supabase Auth
-> → connecte-toi à `/admin` par lien magique (tu deviens super admin) → **invite**
-> ton équipe par email depuis l'onglet *Utilisateurs*.
+> Flux en production : applique `schema.sql` → déploie `admin-users` → ajoute ton
+> email dans Supabase Auth → connecte-toi à `/admin` (tu deviens super admin) →
+> **crée** les comptes de ton équipe depuis l'onglet *Utilisateurs*.
 
-### Inviter des utilisateurs (depuis l'admin)
+### Créer des comptes utilisateurs (depuis l'admin)
 
 Il n'existe **pas de page publique d'inscription** (volontaire). Le super admin
-(ou un utilisateur ayant `users.manage`) **invite** depuis l'onglet *Utilisateurs* :
-il saisit **email + rôle**. La personne va sur `/admin`, entre son email, reçoit
-le **lien magique** et se connecte — elle hérite du rôle attribué.
+(ou un utilisateur ayant `users.manage`) **crée un compte** depuis l'onglet
+*Utilisateurs* : il saisit **email + rôle**. Un **mot de passe fort est généré**
+côté serveur (Edge Function [`admin-users`](supabase/functions/admin-users/index.ts))
+et **envoyé par email**. La personne se connecte sur `/admin` avec son email + ce
+mot de passe, puis peut le changer dans **Mon compte** (et y définir son nom affiché).
 
-- **Aucun mot de passe**, **rien à déployer** : l'invitation = une simple
-  attribution de rôle (`app_user_roles`), et la connexion passe par le lien magique.
-- On ne peut pas retirer/rétrograder le **dernier** super administrateur (anti-verrouillage).
-
-> 💡 Une Edge Function optionnelle [`admin-users`](supabase/functions/admin-users/index.ts)
-> existe si tu veux un jour créer des comptes **email + mot de passe** (elle
-> nécessite `supabase functions deploy admin-users`). Non requise pour le lien magique.
+- Le super admin peut **réinitialiser** le mot de passe d'un compte (bouton 🔑) ou
+  **supprimer** un compte (auth + rôle).
+- On ne peut pas supprimer/rétrograder le **dernier** super administrateur (anti-verrouillage).
+- Nécessite `supabase functions deploy admin-users`. Sans clé email Resend, le mot
+  de passe généré s'affiche une fois au super admin (filet de sécurité).
 
 ---
 

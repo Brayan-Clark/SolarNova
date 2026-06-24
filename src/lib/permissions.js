@@ -143,17 +143,34 @@ async function callAdminUsers(body) {
   }
 }
 
-// Crée un compte (email + mot de passe) et lui attribue un rôle.
-export async function createUser({ email, password, role_name }) {
+// URL du site (pour le lien « Se connecter » dans l'email).
+function siteUrl() {
+  if (typeof window === "undefined") return "";
+  return window.location.origin + window.location.pathname.replace(/\/admin\/?$/, "");
+}
+
+// Crée un compte : le mot de passe FORT est généré côté serveur (Edge
+// Function) et envoyé par email. Renvoie aussi le mot de passe en clair
+// (à afficher une fois) au cas où l'email ne serait pas configuré.
+export async function createUser({ email, role_name }) {
   if (AUTH_MODE === "dev") {
     // En local : pas de vrai compte → on enregistre juste l'attribution
-    // (le mot de passe est ignoré, c'est une simulation de démo).
+    // (simulation de démo, aucun mot de passe réel).
     return saveContent(USER_ROLES_COLL, {
       email: email.trim().toLowerCase(),
       role_name,
     });
   }
-  return callAdminUsers({ action: "create", email, password, role_name });
+  return callAdminUsers({ action: "create", email, role_name, site_url: siteUrl() });
+}
+
+// Réinitialise le mot de passe d'un compte existant (nouveau mot de passe
+// fort généré et envoyé par email).
+export async function resetUserPassword(email) {
+  if (AUTH_MODE === "dev") {
+    return { ok: false, error: "Indisponible en mode démo (local)." };
+  }
+  return callAdminUsers({ action: "reset", email, site_url: siteUrl() });
 }
 
 // Supprime un compte (auth + attribution) en production.

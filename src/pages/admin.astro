@@ -39,18 +39,20 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
         x-show="!isDevAuth"
         class="bg-sol-500/10 border border-sol-500/30 rounded-lg p-3 mb-5 text-xs text-sol-300"
       >
-        <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Entrez votre email :
-        vous recevrez un lien de connexion (aucun mot de passe à retenir).
+        <i class="fa-solid fa-circle-info mr-1"></i> Connectez-vous avec votre
+        <b>email</b> et le <b>mot de passe</b> reçu par email. Vous pourrez le
+        changer ensuite dans « Mon compte ».
       </div>
 
-      <!-- DEV : identifiant + mot de passe -->
-      <form x-show="isDevAuth" @submit.prevent="login()">
-        <label class="text-xs text-sol-300/50 mb-1 block">Identifiant</label>
+      <!-- DEV : identifiant + mot de passe / PROD : email + mot de passe -->
+      <form @submit.prevent="login()">
+        <label class="text-xs text-sol-300/50 mb-1 block" x-text="isDevAuth ? 'Identifiant' : 'Email'"></label>
         <input
-          type="text"
+          :type="isDevAuth ? 'text' : 'email'"
           x-model="loginForm.id"
+          :placeholder="isDevAuth ? '' : 'vous@exemple.com'"
           class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 mb-4"
-          autocomplete="username"
+          :autocomplete="isDevAuth ? 'username' : 'email'"
         />
         <label class="text-xs text-sol-300/50 mb-1 block">Mot de passe</label>
         <input
@@ -68,45 +70,6 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
           <i class="fa-solid fa-right-to-bracket mr-1.5"></i>Se connecter
         </button>
       </form>
-
-      <!-- PROD : lien magique par email -->
-      <div x-show="!isDevAuth">
-        <template x-if="!magicSent">
-          <form @submit.prevent="sendLink()">
-            <label class="text-xs text-sol-300/50 mb-1 block">Email</label>
-            <input
-              type="email"
-              x-model="loginForm.id"
-              placeholder="vous@exemple.com"
-              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2.5 text-sm text-sol-100 focus:outline-none focus:border-sol-500/50 mb-4"
-              autocomplete="email"
-            />
-            <p x-show="loginError" x-text="loginError" class="text-red-400 text-xs mb-4"></p>
-            <button
-              type="submit"
-              :disabled="busy"
-              class="w-full btn-glow bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 py-3 rounded-lg cursor-pointer text-sm disabled:opacity-60"
-            >
-              <i class="fa-solid fa-paper-plane mr-1.5"></i>Recevoir le lien de connexion
-            </button>
-          </form>
-        </template>
-        <template x-if="magicSent">
-          <div class="text-center py-2">
-            <i class="fa-solid fa-envelope-circle-check text-sol-400 text-3xl mb-3"></i>
-            <p class="text-sol-200/80 text-sm">
-              Lien envoyé ! Vérifiez votre boîte mail (et les spams) puis cliquez
-              sur le lien pour vous connecter.
-            </p>
-            <button
-              @click="magicSent=false"
-              class="text-sol-300/60 text-xs mt-4 hover:text-sol-300"
-            >
-              Renvoyer / changer d'email
-            </button>
-          </div>
-        </template>
-      </div>
       <a
         href={base}
         class="block text-center text-sol-300/50 text-xs mt-6 hover:text-sol-300"
@@ -190,12 +153,13 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
             {id:'reviews', label:'Avis', icon:'fa-star', perm:'reviews.moderate'},
             {id:'leads', label:'Demandes', icon:'fa-inbox', perm:'leads.view'},
             {id:'roles', label:'Rôles & accès', icon:'fa-user-shield', perm:'roles.manage'},
-            {id:'users', label:'Utilisateurs', icon:'fa-users', perm:'users.manage'}
+            {id:'users', label:'Utilisateurs', icon:'fa-users', perm:'users.manage'},
+            {id:'account', label:'Mon compte', icon:'fa-user-gear', perm:'__account'}
           ]"
           :key="t.id"
         >
           <button
-            x-show="can(t.perm)"
+            x-show="t.perm==='__account' ? !isDevAuth : can(t.perm)"
             @click="tab=t.id"
             class="px-4 py-2 rounded-lg text-sm font-display font-600 cursor-pointer transition-colors"
             :class="tab===t.id ? 'bg-sol-500 text-sol-950' : 'glass text-sol-200/70 hover:text-sol-200'"
@@ -494,29 +458,30 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
         >
           <i class="fa-solid fa-circle-info mr-1"></i> En local, il n'y a pas de
           vraie authentification : les accès ajoutés ici sont une simulation de
-          démo. En production, chaque personne invitée se connecte via un
-          <b>lien magique</b> envoyé à son email (sans mot de passe).
+          démo. En production, créer un compte génère un mot de passe fort
+          envoyé par email à la personne.
         </div>
 
-        <!-- Inviter un utilisateur (attribuer un rôle par email) -->
+        <!-- Créer un compte (email + rôle, mot de passe généré automatiquement) -->
         <div class="glass rounded-lg p-4 mb-6">
           <div class="text-sm font-display font-600 mb-1">
-            <i class="fa-solid fa-user-plus mr-1.5 text-sol-400"></i>Inviter un utilisateur
+            <i class="fa-solid fa-user-plus mr-1.5 text-sol-400"></i>Créer un compte
           </div>
           <p class="text-xs text-sol-300/50 mb-3">
-            Saisissez l'email et le rôle. La personne se connectera ensuite sur
-            <code>/admin</code> via le <b>lien magique</b> envoyé à son email —
-            aucun mot de passe à gérer.
+            Saisissez l'email et le rôle. Un <b>mot de passe fort</b> est généré
+            automatiquement et <b>envoyé par email</b> à la personne. Elle se
+            connecte ensuite sur <code>/admin</code> avec son email + ce mot de
+            passe (qu'elle pourra changer dans « Mon compte »).
           </p>
           <div class="flex flex-col sm:flex-row gap-3">
             <input
               type="email"
-              x-model="inviteForm.email"
+              x-model="newUserForm.email"
               placeholder="email@exemple.com"
               class="flex-1 bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
             />
             <select
-              x-model="inviteForm.role_name"
+              x-model="newUserForm.role_name"
               class="bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
             >
               <option value="">Choisir un rôle</option>
@@ -525,12 +490,39 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
               </template>
             </select>
             <button
-              @click="inviteUser()"
+              @click="createUserAccount()"
               :disabled="busy"
               class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-4 py-2 rounded-lg text-sm disabled:opacity-60"
             >
-              <i class="fa-solid fa-paper-plane mr-1"></i>Inviter
+              <i class="fa-solid fa-user-plus mr-1"></i>Créer
             </button>
+          </div>
+
+          <!-- Mot de passe généré (affiché une fois, filet de sécurité) -->
+          <div
+            x-show="generatedCred"
+            x-cloak
+            class="mt-4 bg-sol-500/10 border border-sol-500/30 rounded-lg p-3"
+          >
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-xs font-display font-600 text-sol-300">
+                <i class="fa-solid fa-key mr-1"></i>Identifiants de
+                <span x-text="generatedCred?.email"></span>
+              </span>
+              <button @click="dismissCred()" class="text-sol-300/50 hover:text-sol-300 text-xs">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <p class="text-[11px] text-sol-200/60 mb-2">
+              <span x-show="generatedCred?.emailed">Envoyé par email. </span>
+              <span x-show="!generatedCred?.emailed" class="text-gold-300">
+                Email non configuré — notez ce mot de passe maintenant, il ne sera plus affiché.
+              </span>
+            </p>
+            <code
+              class="block bg-sol-950/60 rounded px-3 py-2 text-sm text-sol-100 select-all break-all"
+              x-text="generatedCred?.password"
+            ></code>
           </div>
         </div>
 
@@ -554,9 +546,19 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
                   </template>
                 </select>
                 <button
+                  x-show="!isLocalMode"
+                  @click="resetPassword(u)"
+                  :disabled="busy"
+                  class="w-8 h-8 rounded-lg glass hover:text-gold-300"
+                  title="Réinitialiser le mot de passe"
+                >
+                  <i class="fa-solid fa-key"></i>
+                </button>
+                <button
                   @click="removeUser(u)"
+                  :disabled="busy"
                   class="w-8 h-8 rounded-lg glass hover:text-red-400"
-                  title="Retirer l'accès"
+                  title="Supprimer le compte"
                 >
                   <i class="fa-solid fa-user-minus"></i>
                 </button>
@@ -569,6 +571,77 @@ const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
           >
             Aucun utilisateur. Créez le premier compte ci-dessus.
           </p>
+        </div>
+      </section>
+
+      <!-- ===== MON COMPTE ===== -->
+      <section x-show="tab==='account'">
+        <h2 class="font-display font-700 text-lg mb-4">Mon compte</h2>
+
+        <div class="glass rounded-lg p-5 max-w-lg">
+          <div class="mb-4">
+            <label class="text-xs text-sol-300/50 mb-1 block">Email (identifiant)</label>
+            <input
+              type="email"
+              :value="myEmail()"
+              disabled
+              class="w-full bg-sol-950/40 border border-sol-700/20 rounded-lg px-3 py-2 text-sm text-sol-200/60"
+            />
+            <p class="text-[11px] text-sol-300/40 mt-1">
+              L'email de connexion ne peut pas être changé ici.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <label class="text-xs text-sol-300/50 mb-1 block">Nom affiché</label>
+            <input
+              type="text"
+              x-model="profileForm.displayName"
+              placeholder="ex. Brayan"
+              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div class="border-t border-sol-700/20 my-4"></div>
+
+          <p class="text-xs text-sol-300/50 mb-3">
+            <i class="fa-solid fa-lock mr-1"></i>Changer de mot de passe
+            (laissez vide pour ne pas le modifier).
+          </p>
+          <div class="mb-3">
+            <label class="text-xs text-sol-300/50 mb-1 block">Nouveau mot de passe</label>
+            <input
+              type="password"
+              x-model="profileForm.password"
+              autocomplete="new-password"
+              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+          <div class="mb-4">
+            <label class="text-xs text-sol-300/50 mb-1 block">Confirmer le mot de passe</label>
+            <input
+              type="password"
+              x-model="profileForm.password2"
+              autocomplete="new-password"
+              class="w-full bg-sol-950/60 border border-sol-700/30 rounded-lg px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div
+            x-show="isDevAuth"
+            class="bg-gold-500/10 border border-gold-500/30 rounded-lg p-3 mb-4 text-xs text-gold-300"
+          >
+            <i class="fa-solid fa-circle-info mr-1"></i> En mode démo (local), le
+            profil n'est pas modifiable. Disponible une fois Supabase connecté.
+          </div>
+
+          <button
+            @click="saveProfile()"
+            :disabled="busy || isDevAuth"
+            class="btn-glow bg-sol-500 text-sol-950 font-display font-600 px-5 py-2 rounded-lg text-sm disabled:opacity-60"
+          >
+            <i class="fa-solid fa-floppy-disk mr-1"></i>Enregistrer
+          </button>
         </div>
       </section>
     </main>

@@ -10,7 +10,7 @@ import {
 } from "../lib/content.js";
 import {
   signIn,
-  sendMagicLink,
+  updateMyProfile,
   signOut,
   getCurrentUser,
   AUTH_MODE,
@@ -27,6 +27,9 @@ import {
   loadUserRoles,
   assignUserRole,
   removeUserRole,
+  createUser,
+  resetUserPassword,
+  deleteUser,
   getCurrentPermissions,
   bootstrapSuperAdmin,
 } from "../lib/permissions.js";
@@ -89,8 +92,12 @@ export function createAdminApp() {
 
     // --- Édition rôle / utilisateur ---
     roleEdit: null, // rôle en cours d'édition
-    inviteForm: { email: "", role_name: "" },
-    magicSent: false, // lien magique envoyé (écran de connexion)
+    newUserForm: { email: "", role_name: "" },
+    // Mot de passe généré à afficher UNE fois après création / réinit.
+    generatedCred: null, // { email, password, emailed }
+
+    // --- Mon compte (libre-service) ---
+    profileForm: { displayName: "", password: "", password2: "" },
 
     // --- Édition ---
     editColl: null, // 'articles' | 'solutions'
@@ -107,7 +114,7 @@ export function createAdminApp() {
       if (this.authed) await this.afterAuth();
     },
 
-    // Connexion par identifiant + mot de passe (mode dev local uniquement).
+    // Connexion : identifiant + mot de passe (dev) OU email + mot de passe (prod).
     async login() {
       this.loginError = "";
       this.busy = true;
@@ -123,28 +130,13 @@ export function createAdminApp() {
       }
     },
 
-    // Connexion par lien magique (email, prod).
-    async sendLink() {
-      this.loginError = "";
-      const email = (this.loginForm.id || "").trim();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        this.loginError = "Veuillez entrer une adresse email valide.";
-        return;
-      }
-      this.busy = true;
-      const res = await sendMagicLink(email);
-      this.busy = false;
-      if (res.ok) {
-        this.magicSent = true;
-      } else {
-        this.loginError = res.error || "Envoi impossible.";
-      }
-    },
-
     // Après connexion : 1er utilisateur → super admin, puis calcul des droits.
     async afterAuth() {
       await bootstrapSuperAdmin();
       this.permissions = await getCurrentPermissions(this.authUser);
+      // Pré-remplit le nom affiché dans « Mon compte ».
+      this.profileForm.displayName =
+        this.authUser?.user_metadata?.display_name || "";
       // Onglet par défaut = premier auquel l'utilisateur a droit.
       this.tab = this.firstAllowedTab();
       await this.loadAll();
@@ -265,11 +257,12 @@ export function createAdminApp() {
     },
 
     // ---------- Utilisateurs ----------
-    // Invite un utilisateur : on attribue un rôle à son email. La personne se
-    // connectera ensuite via le lien magique envoyé à cet email (sans mot de passe).
-    async inviteUser() {
-      const email = this.inviteForm.email.trim().toLowerCase();
-      if (!email || !this.inviteForm.role_name) {
+    // Crée un compte : email + rôle. Un mot de passe FORT est généré
+    // automatiquement (côté serveur) et envoyé par email à la personne.
+    // En local (démo), on enregistre seulement l'attribution de rôle.
+    async createUserAccount() {
+      const email = this.newUserForm.email.trim().toLowerCase();
+      if (!email || !this.newUserForm.role_name) {
         this.showToast("Email et rôle requis.", "error");
         return;
       }
@@ -277,25 +270,60 @@ export function createAdminApp() {
         this.showToast("Adresse email invalide.", "error");
         return;
       }
-      const existing = this.userRoles.find((u) => u.email === email);
-      const entry = existing
-        ? { ...existing, role_name: this.inviteForm.role_name }
-        : { email, role_name: this.inviteForm.role_name };
+      this.generatedCred = null;
       this.busy = true;
-      const res = await assignUserRole(entry);
+      const res = await createUser({ email, role_name: this.newUserForm.role_name });
       this.busy = false;
       if (res.ok) {
-        this.inviteForm = { email: "", role_name: "" };
+        this.newUserForm = { email: "", role_name: "" };
         this.userRoles = await loadUserRoles();
+        if (this.isLocalMode) {
+          this.showToast("Accès ajouté (local, démo).", "success");
+        } else {
+          // Affiche le mot de passe généré (filet de sécurité).
+          this.generatedCred = {
+            email,
+            password: res.data?.password || "",
+            emailed: Boolean(res.data?.emailed),
+          };
+          this.showToast(
+            res.data?.emailed
+              ? "Compte créé. Mot de passe envoyé par email."
+              : "Compte créé. Notez le mot de passe ci-dessous.",
+            "success",
+          );
+        }
+      } else {
+        this.showToast("Échec" + this.errText(res), "error");
+      }
+    },
+
+    // Réinitialise le mot de passe d'un utilisateur (nouveau généré + email).
+    async resetPassword(entry) {
+      if (!confirm("Réinitialiser le mot de passe de " + entry.email + " ?")) return;
+      this.generatedCred = null;
+      this.busy = true;
+      const res = await resetUserPassword(entry.email);
+      this.busy = false;
+      if (res.ok) {
+        this.generatedCred = {
+          email: entry.email,
+          password: res.data?.password || "",
+          emailed: Boolean(res.data?.emailed),
+        };
         this.showToast(
-          this.isLocalMode
-            ? "Accès ajouté (local)."
-            : "Accès accordé. La personne se connecte via le lien magique envoyé à son email.",
+          res.data?.emailed
+            ? "Mot de passe réinitialisé et envoyé par email."
+            : "Mot de passe réinitialisé. Notez-le ci-dessous.",
           "success",
         );
       } else {
         this.showToast("Échec" + this.errText(res), "error");
       }
+    },
+
+    dismissCred() {
+      this.generatedCred = null;
     },
 
     // Nombre de super administrateurs actuels.
@@ -328,26 +356,60 @@ export function createAdminApp() {
       }
     },
 
-    // Retire l'accès d'un utilisateur (supprime son rôle). Le compte d'auth
-    // reste (suppression complète = via Supabase Auth), mais sans rôle la
-    // personne n'a plus aucun droit.
+    // Supprime un utilisateur : en prod, supprime le compte d'auth + son rôle ;
+    // en local (démo), supprime juste l'attribution de rôle.
     async removeUser(entry) {
       // Garde-fou : ne pas retirer le DERNIER super admin.
       if (entry.role_name === "super_admin" && this.superAdminCount() <= 1) {
         this.showToast(
-          "Impossible de retirer le dernier super administrateur.",
+          "Impossible de supprimer le dernier super administrateur.",
           "error",
         );
         return;
       }
-      if (!confirm("Retirer l'accès de " + entry.email + " ?")) return;
-      const res = await removeUserRole(entry.id);
+      if (!confirm("Supprimer définitivement le compte de " + entry.email + " ?")) return;
+      this.busy = true;
+      const res = this.isLocalMode
+        ? await removeUserRole(entry.id)
+        : await deleteUser(entry.email);
+      this.busy = false;
       if (res.ok) {
         this.userRoles = await loadUserRoles();
-        this.showToast("Accès retiré.", "success");
+        this.showToast("Utilisateur supprimé.", "success");
       } else {
         this.showToast("Échec" + this.errText(res), "error");
       }
+    },
+
+    // ---------- Mon compte (libre-service) ----------
+    async saveProfile() {
+      const f = this.profileForm;
+      if (f.password && f.password.length < 8) {
+        this.showToast("Le mot de passe doit faire au moins 8 caractères.", "error");
+        return;
+      }
+      if (f.password && f.password !== f.password2) {
+        this.showToast("Les deux mots de passe ne correspondent pas.", "error");
+        return;
+      }
+      this.busy = true;
+      const res = await updateMyProfile({
+        displayName: f.displayName.trim(),
+        password: f.password || undefined,
+      });
+      this.busy = false;
+      if (res.ok) {
+        if (res.user) this.authUser = res.user;
+        this.profileForm.password = "";
+        this.profileForm.password2 = "";
+        this.showToast("Profil mis à jour.", "success");
+      } else {
+        this.showToast("Échec" + this.errText(res), "error");
+      }
+    },
+
+    myEmail() {
+      return this.authUser?.email || this.devCreds?.user || "";
     },
 
     // ---------- Édition articles / solutions ----------
