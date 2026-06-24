@@ -1,0 +1,47 @@
+---
+import "../styles/global.css";
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase.endsWith("/") ? rawBase : rawBase + "/";
+---
+
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Page introuvable — SolarNova</title>
+    <meta name="theme-color" content="#010d06" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-4 text-center">
+    <div class="max-w-md">
+      <div
+        class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sol-500 to-gold-500 flex items-center justify-center mx-auto mb-6 animate-pulse"
+      >
+        <i class="fa-solid fa-sun text-sol-950 text-2xl"></i>
+      </div>
+      <h1 class="font-display font-900 text-6xl mb-2 text-grad">404</h1>
+      <h2 class="font-display font-700 text-xl mb-3">Page introuvable</h2>
+      <p class="text-sol-200/50 text-sm mb-8">
+        Cette page n'existe pas ou a été déplacée. Le soleil brille ailleurs ☀️
+      </p>
+      <a
+        href={base}
+        class="btn-glow inline-block bg-gradient-to-r from-sol-500 to-sol-600 text-sol-950 font-display font-700 px-6 py-3 rounded-lg text-sm"
+      >
+        <i class="fa-solid fa-arrow-left mr-1.5"></i>Retour à l'accueil
+      </a>
+    </div>
+  </body>
+</html>
