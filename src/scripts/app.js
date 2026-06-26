@@ -443,9 +443,9 @@ export function createApp() {
             // (seedé depuis les défauts). Reflète les modifs admin.
             this.loadContent();
             this.loadReviews();
-            this.page = location.hash.slice(1) || "home";
+            this.applyRoute();
             window.addEventListener("hashchange", () => {
-                this.page = location.hash.slice(1) || "home";
+                this.applyRoute();
             });
             window.addEventListener("scroll", () => {
                 this.scrolled = window.scrollY > 50;
@@ -482,6 +482,54 @@ export function createApp() {
                 if (page === "home")
                     this.$nextTick(() => this.observeStats());
             }, 200);
+        },
+
+        // Convertit un texte en slug URL (sans accents, minuscules,
+        // tirets). Sert à construire des liens d'article lisibles.
+        slugify(str) {
+            return String(str || "")
+                .normalize("NFD")
+                .replace(/[̀-ͯ]/g, "") // accents
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-+|-+$/g, "")
+                .slice(0, 80);
+        },
+
+        // Identifiant d'URL d'un article : son slug propre si défini,
+        // sinon dérivé du titre, avec repli sur l'id.
+        articleSlug(article) {
+            if (!article) return "";
+            return (
+                article.slug ||
+                this.slugify(article.title) ||
+                String(article.id)
+            );
+        },
+
+        // Applique l'état (page + article ouvert) à partir du hash.
+        // Format : "#page" ou "#blog/<slug>" pour un article précis.
+        // Le repli par id assure que les anciens liens "#blog/<id>"
+        // partagés continuent de fonctionner.
+        // Appelé à l'init et à chaque hashchange (lien partagé,
+        // bouton précédent/suivant du navigateur).
+        applyRoute() {
+            const raw = location.hash.slice(1);
+            const slash = raw.indexOf("/");
+            const page = (slash === -1 ? raw : raw.slice(0, slash)) || "home";
+            const sub = slash === -1 ? "" : raw.slice(slash + 1);
+            this.page = page;
+            if (page === "blog" && sub) {
+                const key = decodeURIComponent(sub);
+                this.blogArticle =
+                    this.articles.find(
+                        (a) =>
+                            this.articleSlug(a) === key ||
+                            String(a.id) === key,
+                    ) || null;
+            } else {
+                this.blogArticle = null;
+            }
         },
 
         observeStats() {
@@ -589,6 +637,102 @@ export function createApp() {
         openArticle(article) {
             this.blogArticle = article;
             window.scrollTo({ top: 0, behavior: "smooth" });
+            // Lien profond partageable vers l'article (slug lisible).
+            history.pushState(
+                null,
+                "",
+                "#blog/" + encodeURIComponent(this.articleSlug(article)),
+            );
+        },
+
+        // Ouvre un article depuis une autre page (ex. accueil) :
+        // bascule sur le blog puis ouvre l'article une fois la
+        // transition de navigation terminée, afin que le hash
+        // profond (#blog/<id>) ne soit pas écrasé par navigate().
+        openArticleNav(article) {
+            if (this.page === "blog") {
+                this.openArticle(article);
+                return;
+            }
+            this.navigate("blog");
+            setTimeout(() => this.openArticle(article), 220);
+        },
+
+        // Ferme l'article et revient à la liste du blog.
+        closeArticle() {
+            this.blogArticle = null;
+            if (this.page === "blog") history.pushState(null, "", "#blog");
+        },
+
+        // URL absolue partageable de l'article courant.
+        articleShareUrl() {
+            if (!this.blogArticle) return "";
+            const base = window.location.origin + window.location.pathname;
+            return (
+                base +
+                "#blog/" +
+                encodeURIComponent(this.articleSlug(this.blogArticle))
+            );
+        },
+
+        // Ouvre la fenêtre de partage du réseau choisi.
+        shareArticle(network) {
+            if (!this.blogArticle) return;
+            const u = encodeURIComponent(this.articleShareUrl());
+            const t = encodeURIComponent(this.blogArticle.title);
+            const links = {
+                facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+                twitter: `https://twitter.com/intent/tweet?url=${u}&text=${t}`,
+                whatsapp: `https://api.whatsapp.com/send?text=${t}%20${u}`,
+                linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
+                telegram: `https://t.me/share/url?url=${u}&text=${t}`,
+                email: `mailto:?subject=${t}&body=${u}`,
+            };
+            const link = links[network];
+            if (!link) return;
+            if (network === "email") {
+                window.location.href = link;
+            } else {
+                window.open(
+                    link,
+                    "_blank",
+                    "noopener,noreferrer,width=600,height=540",
+                );
+            }
+        },
+
+        // Partage natif (mobile) si disponible, sinon copie le lien.
+        async nativeShare() {
+            const url = this.articleShareUrl();
+            if (!url) return;
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: this.blogArticle.title,
+                        text: this.blogArticle.excerpt || "",
+                        url,
+                    });
+                } catch {
+                    /* partage annulé par l'utilisateur : on ignore */
+                }
+            } else {
+                this.copyArticleLink();
+            }
+        },
+
+        // Copie le lien de l'article dans le presse-papiers.
+        async copyArticleLink() {
+            const url = this.articleShareUrl();
+            if (!url) return;
+            try {
+                await navigator.clipboard.writeText(url);
+                this.showToast(
+                    "Lien de l'article copié dans le presse-papiers.",
+                    "success",
+                );
+            } catch {
+                this.showToast("Impossible de copier le lien.", "error");
+            }
         },
 
         // Affiche le contenu d'un article.
@@ -673,7 +817,16 @@ export function createApp() {
                     listContent("articles"),
                 ]);
                 if (sols && sols.length) this.solutions = sols;
-                if (arts && arts.length) this.articles = arts;
+                if (arts && arts.length) {
+                    this.articles = arts;
+                    // Si un article était ouvert via un lien profond,
+                    // on le ré-associe à la donnée fraîchement chargée.
+                    if (this.blogArticle) {
+                        const id = String(this.blogArticle.id);
+                        this.blogArticle =
+                            arts.find((a) => String(a.id) === id) || null;
+                    }
+                }
             } catch {
                 // on garde les données par défaut en cas d'erreur
             }

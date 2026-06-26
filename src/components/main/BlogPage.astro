@@ -82,7 +82,7 @@
                     <section class="pt-28 pb-20" x-show="blogArticle">
                         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
                             <button
-                                @click="blogArticle=null"
+                                @click="closeArticle()"
                                 class="text-sol-400 text-sm font-medium cursor-pointer hover:text-sol-300 transition-colors inline-flex items-center gap-2 mb-8"
                             >
                                 <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -123,6 +123,82 @@
                                         class="article-content max-w-none text-sol-200/70 leading-relaxed"
                                         x-html="renderArticle(blogArticle.content)"
                                     ></div>
+
+                                    <!-- Partage de l'article -->
+                                    <div
+                                        class="mt-12 pt-8 border-t border-sol-200/10"
+                                    >
+                                        <div
+                                            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                                        >
+                                            <span
+                                                class="text-sm font-display font-600 text-sol-200/70 inline-flex items-center gap-2"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-share-nodes text-sol-400"
+                                                ></i>
+                                                Partager cet article
+                                            </span>
+                                            <div class="flex flex-wrap items-center gap-2.5">
+                                                <button
+                                                    @click="shareArticle('facebook')"
+                                                    title="Partager sur Facebook"
+                                                    aria-label="Partager sur Facebook"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-brands fa-facebook-f"></i>
+                                                </button>
+                                                <button
+                                                    @click="shareArticle('twitter')"
+                                                    title="Partager sur X (Twitter)"
+                                                    aria-label="Partager sur X (Twitter)"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-brands fa-x-twitter"></i>
+                                                </button>
+                                                <button
+                                                    @click="shareArticle('whatsapp')"
+                                                    title="Partager sur WhatsApp"
+                                                    aria-label="Partager sur WhatsApp"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-brands fa-whatsapp"></i>
+                                                </button>
+                                                <button
+                                                    @click="shareArticle('linkedin')"
+                                                    title="Partager sur LinkedIn"
+                                                    aria-label="Partager sur LinkedIn"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-brands fa-linkedin-in"></i>
+                                                </button>
+                                                <button
+                                                    @click="shareArticle('telegram')"
+                                                    title="Partager sur Telegram"
+                                                    aria-label="Partager sur Telegram"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-brands fa-telegram"></i>
+                                                </button>
+                                                <button
+                                                    @click="shareArticle('email')"
+                                                    title="Partager par e-mail"
+                                                    aria-label="Partager par e-mail"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-solid fa-envelope"></i>
+                                                </button>
+                                                <button
+                                                    @click="copyArticleLink()"
+                                                    title="Copier le lien"
+                                                    aria-label="Copier le lien"
+                                                    class="w-10 h-10 rounded-full glass glass-hover flex items-center justify-center text-sol-200/70 hover:text-sol-300 cursor-pointer transition-colors"
+                                                >
+                                                    <i class="fa-solid fa-link"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </template>
                         </div>

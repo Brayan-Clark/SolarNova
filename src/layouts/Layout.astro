@@ -107,7 +107,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   <body
     x-data="app()"
     x-init="init()"
-    @keydown.escape="mobileMenu=false;blogArticle=null"
+    @keydown.escape="mobileMenu=false;closeArticle()"
   >
     <slot />
 
